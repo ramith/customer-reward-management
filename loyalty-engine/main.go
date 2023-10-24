@@ -1,10 +1,29 @@
+/*
+ * Copyright (c) 2023, WSO2 LLC. (https://www.wso2.com/) All Rights Reserved.
+ *
+ * WSO2 LLC. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+
 package main
 
 import (
 	"encoding/json"
+	"net/http"
+
 	"github.com/gorilla/mux"
 	"go.uber.org/zap"
-	"net/http"
 )
 
 type User struct {
@@ -15,18 +34,18 @@ type User struct {
 }
 
 type RewardOffer struct {
-	Id string `json:"id"`
-	Name    string `json:"name"`
-	Value   float32 `json:"value"`
-	TotalPoints  int `json:"totalPoints"`
-	Description string `json:"description"`
-	LogoUrl string `json:"logoUrl"`
+	Id          string  `json:"id"`
+	Name        string  `json:"name"`
+	Value       float32 `json:"value"`
+	TotalPoints int     `json:"totalPoints"`
+	Description string  `json:"description"`
+	LogoUrl     string  `json:"logoUrl"`
 }
 
 type UserReward struct {
 	UserId               string `json:"userId"`
 	SelectedRewardDealId string `json:"selectedRewardDealId"`
-	Timestamp            string `json:"timestamp"` // Consider using time.Time if you need date-time operations
+	Timestamp            string `json:"timestamp"`
 	AcceptedTnC          bool   `json:"acceptedTnC"`
 }
 
@@ -35,49 +54,12 @@ var userRewards []UserReward
 var rewardOffers []RewardOffer
 var users []User
 
-func getRewardOffers(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(rewardOffers)
-}
-
-func getRewardOffer(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
-	params := mux.Vars(r)
-	for _, item := range rewardOffers {
-		if item.Id == params["id"] {
-			json.NewEncoder(w).Encode(item)
-			logger.Info("get reward offer", zap.Any("reward offer", item))
-			return
-		}
+func init() {
+	var err error
+	logger, err = zap.NewProduction()
+	if err != nil {
+		panic(err)
 	}
-
-	logger.Info("reward offer not found", zap.String("offer id", params["id"]))
-	w.WriteHeader(http.StatusNotFound)
-	json.NewEncoder(w).Encode(&User{})
-
-}
-
-
-func getUserRewards(w http.ResponseWriter, r *http.Request) {
-	logger.Info("get all rewards")
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(userRewards)
-}
-
-func getUserDetails(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
-	params := mux.Vars(r)
-	for _, item := range users {
-		if item.UserId == params["id"] {
-			json.NewEncoder(w).Encode(item)
-			logger.Info("get user details", zap.Any("user", item))
-			return
-		}
-	}
-
-	logger.Info("user not found", zap.String("user id", params["id"]))
-	w.WriteHeader(http.StatusNotFound)
-	json.NewEncoder(w).Encode(&User{})
 }
 
 func main() {
@@ -107,10 +89,46 @@ func main() {
 	http.ListenAndServe(":8080", r)
 }
 
-func init() {
-	var err error
-	logger, err = zap.NewProduction()
-	if err != nil {
-		panic(err)
+func getRewardOffers(w http.ResponseWriter, r *http.Request) {
+	logger.Info("get reward offers")
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(rewardOffers)
+}
+
+func getRewardOffer(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	params := mux.Vars(r)
+	for _, item := range rewardOffers {
+		if item.Id == params["id"] {
+			json.NewEncoder(w).Encode(item)
+			logger.Info("get reward offer", zap.Any("reward offer", item))
+			return
+		}
 	}
+
+	logger.Info("reward offer not found", zap.String("offer id", params["id"]))
+	w.WriteHeader(http.StatusNotFound)
+	json.NewEncoder(w).Encode(&User{})
+}
+
+func getUserRewards(w http.ResponseWriter, r *http.Request) {
+	logger.Info("get all rewards")
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(userRewards)
+}
+
+func getUserDetails(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	params := mux.Vars(r)
+	for _, user := range users {
+		if user.UserId == params["id"] {
+			json.NewEncoder(w).Encode(user)
+			logger.Info("get user details", zap.Any("user", user))
+			return
+		}
+	}
+
+	logger.Info("user not found", zap.String("user id", params["id"]))
+	w.WriteHeader(http.StatusNotFound)
+	json.NewEncoder(w).Encode(&User{})
 }
