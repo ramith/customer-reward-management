@@ -3,12 +3,12 @@
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <modelVersion>4.0.0</modelVersion>
   <parent>
-    <groupId>org.ramith</groupId>
+    <groupId>org.choreodemo</groupId>
     <artifactId>reward-management-api-miConfigs_module</artifactId>
     <version>1.0.0</version>
     <relativePath>../../pom.xml</relativePath>
   </parent>
-  <groupId>org.ramith.metadata</groupId>
+  <groupId>org.choreodemo.metadata</groupId>
   <artifactId>customer_reward_mgt_metadata</artifactId>
   <version>1.0.0</version>
   <packaging>synapse/metadata</packaging>

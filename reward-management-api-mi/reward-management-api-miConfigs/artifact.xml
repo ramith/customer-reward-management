@@ -1,17 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?><artifacts>
-    <artifact name="LoyaltyMgt" groupId="org.ramith.endpoint" version="1.0.0" type="synapse/endpoint" serverRole="EnterpriseServiceBus">
+    <artifact name="LoyaltyMgt" groupId="org.choreodemo.endpoint" version="1.0.0" type="synapse/endpoint" serverRole="EnterpriseServiceBus">
         <file>src/main/synapse-config/endpoints/LoyaltyMgt.xml</file>
     </artifact>
-    <artifact name="VendorMgt" groupId="org.ramith.endpoint" version="1.0.0" type="synapse/endpoint" serverRole="EnterpriseServiceBus">
+    <artifact name="VendorMgt" groupId="org.choreodemo.endpoint" version="1.0.0" type="synapse/endpoint" serverRole="EnterpriseServiceBus">
         <file>src/main/synapse-config/endpoints/VendorMgt.xml</file>
     </artifact>
-    <artifact name="customer_reward_mgt" groupId="org.ramith.api" version="1.0.0" type="synapse/api" serverRole="EnterpriseServiceBus">
+    <artifact name="customer_reward_mgt" groupId="org.choreodemo.api" version="1.0.0" type="synapse/api" serverRole="EnterpriseServiceBus">
         <file>src/main/synapse-config/api/customer_reward_mgt.xml</file>
     </artifact>
-    <artifact name="customer_reward_mgt_swagger" groupId="org.ramith.metadata" version="1.0.0" type="synapse/metadata" serverRole="EnterpriseServiceBus">
+    <artifact name="customer_reward_mgt_swagger" groupId="org.choreodemo.metadata" version="1.0.0" type="synapse/metadata" serverRole="EnterpriseServiceBus">
         <file>src/main/resources/metadata/customer_reward_mgt_swagger.yaml</file>
     </artifact>
-    <artifact name="customer_reward_mgt_metadata" groupId="org.ramith.metadata" version="1.0.0" type="synapse/metadata" serverRole="EnterpriseServiceBus">
+    <artifact name="customer_reward_mgt_metadata" groupId="org.choreodemo.metadata" version="1.0.0" type="synapse/metadata" serverRole="EnterpriseServiceBus">
         <file>src/main/resources/metadata/customer_reward_mgt_metadata.yaml</file>
     </artifact>
 </artifacts>

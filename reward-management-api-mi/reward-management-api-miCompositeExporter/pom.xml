@@ -3,51 +3,51 @@
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <modelVersion>4.0.0</modelVersion>
   <parent>
-    <groupId>org.ramith</groupId>
+    <groupId>org.choreodemo</groupId>
     <artifactId>reward-management-api-mi</artifactId>
     <version>1.0.0</version>
   </parent>
-  <groupId>org.ramith</groupId>
+  <groupId>org.choreodemo</groupId>
   <artifactId>reward-management-api-miCompositeExporter</artifactId>
   <version>1.0.0</version>
   <packaging>carbon/application</packaging>
   <name>reward-management-api-miCompositeExporter</name>
   <description>reward-management-api-miCompositeExporter</description>
   <properties>
-    <org.ramith.endpoint_._LoyaltyMgt>capp/EnterpriseServiceBus</org.ramith.endpoint_._LoyaltyMgt>
-    <org.ramith.endpoint_._VendorMgt>capp/EnterpriseServiceBus</org.ramith.endpoint_._VendorMgt>
-    <org.ramith.metadata_._customer_reward_mgt_metadata>capp/EnterpriseServiceBus</org.ramith.metadata_._customer_reward_mgt_metadata>
+    <org.choreodemo.endpoint_._LoyaltyMgt>capp/EnterpriseServiceBus</org.choreodemo.endpoint_._LoyaltyMgt>
+    <org.choreodemo.endpoint_._VendorMgt>capp/EnterpriseServiceBus</org.choreodemo.endpoint_._VendorMgt>
+    <org.choreodemo.metadata_._customer_reward_mgt_metadata>capp/EnterpriseServiceBus</org.choreodemo.metadata_._customer_reward_mgt_metadata>
     <artifact.types>jaggery/app=zip,synapse/priority-executor=xml,synapse/inbound-endpoint=xml,service/rule=aar,synapse/message-store=xml,event/stream=json,service/meta=xml,datasource/datasource=xml,synapse/proxy-service=xml,bpel/workflow=zip,synapse/sequence=xml,synapse/endpointTemplate=xml,carbon/application=car,wso2/gadget=dar,synapse/api=xml,synapse/event-source=xml,synapse/message-processors=xml,event/receiver=xml,lib/dataservice/validator=jar,synapse/template=xml,synapse/endpoint=xml,lib/carbon/ui=jar,lib/synapse/mediator=jar,synapse/metadata=yaml,event/publisher=xml,synapse/local-entry=xml,synapse/task=xml,webapp/jaxws=war,registry/resource=zip,synapse/configuration=xml,service/axis2=aar,synapse/lib=zip,synapse/sequenceTemplate=xml,event/execution-plan=siddhiql,service/dataservice=dbs,web/application=war,lib/library/bundle=jar</artifact.types>
-    <org.ramith.metadata_._customer_reward_mgt_swagger>capp/EnterpriseServiceBus</org.ramith.metadata_._customer_reward_mgt_swagger>
-    <org.ramith.api_._customer_reward_mgt>capp/EnterpriseServiceBus</org.ramith.api_._customer_reward_mgt>
+    <org.choreodemo.metadata_._customer_reward_mgt_swagger>capp/EnterpriseServiceBus</org.choreodemo.metadata_._customer_reward_mgt_swagger>
+    <org.choreodemo.api_._customer_reward_mgt>capp/EnterpriseServiceBus</org.choreodemo.api_._customer_reward_mgt>
   </properties>
   <dependencies>
     <dependency>
-      <groupId>org.ramith.metadata</groupId>
+      <groupId>org.choreodemo.metadata</groupId>
       <artifactId>customer_reward_mgt_metadata</artifactId>
       <version>1.0.0</version>
       <type>yaml</type>
     </dependency>
     <dependency>
-      <groupId>org.ramith.metadata</groupId>
+      <groupId>org.choreodemo.metadata</groupId>
       <artifactId>customer_reward_mgt_swagger</artifactId>
       <version>1.0.0</version>
       <type>yaml</type>
     </dependency>
     <dependency>
-      <groupId>org.ramith.api</groupId>
+      <groupId>org.choreodemo.api</groupId>
       <artifactId>customer_reward_mgt</artifactId>
       <version>1.0.0</version>
       <type>xml</type>
     </dependency>
     <dependency>
-      <groupId>org.ramith.endpoint</groupId>
+      <groupId>org.choreodemo.endpoint</groupId>
       <artifactId>LoyaltyMgt</artifactId>
       <version>1.0.0</version>
       <type>xml</type>
     </dependency>
     <dependency>
-      <groupId>org.ramith.endpoint</groupId>
+      <groupId>org.choreodemo.endpoint</groupId>
       <artifactId>VendorMgt</artifactId>
       <version>1.0.0</version>
       <type>xml</type>
