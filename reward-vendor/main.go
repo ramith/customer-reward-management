@@ -20,6 +20,7 @@ package main
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"fmt"
 	"math/rand"
@@ -29,6 +30,7 @@ import (
 
 	"github.com/gorilla/mux"
 	"go.uber.org/zap"
+	"golang.org/x/oauth2/clientcredentials"
 )
 
 type Reward struct {
@@ -48,7 +50,16 @@ type RewardConfirmation struct {
 var logger *zap.Logger
 var rewards []Reward
 
+var clientId = os.Getenv("CLIENT_ID")
+var clientSecret = os.Getenv("CLIENT_SECRET")
+var tokenUrl = os.Getenv("TOKEN_URL")
 var rewardConfirmationWebhookUrl = os.Getenv("REWARD_CONFIRMATION_WEBHOOK_URL")
+
+var clientCredsConfig = clientcredentials.Config{
+	ClientID:     clientId,
+	ClientSecret: clientSecret,
+	TokenURL:     tokenUrl,
+}
 
 func init() {
 	var err error
@@ -65,8 +76,6 @@ func main() {
 
 	r := mux.NewRouter()
 
-	// Sample Data
-	rewards = append(rewards, Reward{RewardId: "RWD0000", UserId: "U0000", FirstName: "John", LastName: "Doe", Email: "john@example.com"})
 	r.HandleFunc("/rewards", HandleCreateReward).Methods("POST")
 	http.ListenAndServe(":8080", r)
 }
@@ -102,7 +111,8 @@ func RespondWithRewardConfirmation(rewardId string, userId string) {
 		logger.Error("Failed to marshal data", zap.Error(err))
 	}
 
-	resp, err := http.Post(rewardConfirmationWebhookUrl, "application/json", bytes.NewBuffer(data))
+	resp, err := clientCredsConfig.Client(context.Background()).Post(rewardConfirmationWebhookUrl,
+		"application/json", bytes.NewBuffer(data))
 	if err != nil {
 		logger.Error("Failed to send POST request", zap.Error(err))
 	}
