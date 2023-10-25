@@ -1,8 +1,60 @@
+// Copyright (c) 2023, WSO2 LLC. (https://www.wso2.com/) All Rights Reserved.
+//
+// WSO2 LLC. licenses this file to you under the Apache License,
+// Version 2.0 (the "License"); you may not use this file except
+// in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing,
+// software distributed under the License is distributed on an
+// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+// KIND, either express or implied. See the License for the
+// specific language governing permissions and limitations
+// under the License.
+//
+
 import ballerina/http;
 import ballerina/log;
-import ballerinax/mysql;
-import ballerina/sql;
-import ballerinax/mysql.driver as _;
+
+public type RewardConfirmationEvent record {|
+    string userId;
+    string rewardId;
+    string rewardConfirmationNumber;
+|};
+
+public type RewardConfirmation record {|
+    string userId;
+    string rewardId;
+    byte[] rewardConfirmationQrCode;
+|};
+
+configurable string clientId = ?;
+configurable string clientSecret = ?;
+configurable string tokenUrl = ?;
+configurable string qrcodeApiEndpoint = ?;
+configurable string dataSourceApiEndpoint = ?;
+
+# The client to connect to the QR code generator API
+@display {
+    label: "QR Code Generator",
+    id: "qrcode-generator-api"
+}
+http:Client qrCodeClient = check new (qrcodeApiEndpoint);
+
+# The client to connect to the data source API
+@display {
+    label: "Data Source",
+    id: "data-source-api"
+}
+http:Client dataSourceClient = check new (dataSourceApiEndpoint, {
+    auth: {
+        tokenUrl: tokenUrl,
+        clientId: clientId,
+        clientSecret: clientSecret
+    }
+});
 
 # A service representing a network-accessible API
 # bound to port `9090`.
@@ -12,47 +64,27 @@ service / on new http:Listener(9090) {
         log:printInfo("reward confirmation received", rewardConfirmation = payload);
 
         log:printInfo("generate qr code for: ", rewardConformationNumber = payload.rewardConfirmationNumber);
-
-        http:Client qrCodeClient = check new (qrcodeApiEndoint, {
-            auth: {
-                tokenUrl: qrCodeTokenEndpoint,
-                clientId: qrCodeClientId,
-                clientSecret: qrCodeClientSecret
-            }
-        });
-
         http:Response httpResponse = check qrCodeClient->/qrcode(content = payload.rewardConfirmationNumber);
-
         // Get the byte payload from the response
         byte[] imageContent = check httpResponse.getBinaryPayload();
 
-        // Insert the image content into the MySQL database using the existing mysqlEndpoint
-        sql:ParameterizedQuery insertQuery = `INSERT INTO reward_confirmation (id, reward_id, user_id, reward_confirmation_qrcode) VALUES (0, ${payload.rewardId}, ${payload.userId}, ${imageContent})`;
-        sql:ExecutionResult result = check mysqlEndpoint->execute(insertQuery);
+        log:printInfo("successfully generated qr code for: ",
+            rewardConformationNumber = payload.rewardConfirmationNumber, imageContent = imageContent);
 
-        if (result.affectedRowCount > 0) {
-            log:printInfo("image successfully saved to the user profile");
-        } else {
-            log:printError("failed to save the image to the user profile");
+        RewardConfirmation rewardConfirmation = {
+            userId: payload.userId,
+            rewardId: payload.rewardId,
+            rewardConfirmationQrCode: imageContent
+        };
+
+        log:printInfo("saving the qrcode to the user profile", userId = payload.userId);
+        http:Response|http:Error response = dataSourceClient->post("/reward-confirmation", rewardConfirmation);
+        if response is http:Error {
+            string msg = "failed to save the qrcode to the user profile";
+            log:printError(msg, userId = payload.userId);
+            return error(msg);
         }
-
+        log:printInfo("qrcode successfully saved to the user profile", userId = payload.userId,
+            statusCode = response.statusCode);
     }
 }
-
-public type RewardConfirmationEvent record {|
-    string userId;
-    string rewardId;
-    string rewardConfirmationNumber;
-|};
-
-configurable string qrcodeApiEndoint = ?;
-configurable string qrCodeClientId = ?;
-configurable string qrCodeClientSecret = ?;
-configurable string qrCodeTokenEndpoint = ?;
-
-configurable string dbhost = ?;
-configurable string dbuser = ?;
-configurable string dbpwd = ?;
-configurable string database = ?;
-
-public mysql:Client mysqlEndpoint = check new (host = dbhost, user = dbuser, password = dbpwd, database = database);

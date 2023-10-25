@@ -1,5 +1,5 @@
 [package]
-org = "ramith"
+org = "choreodemo"
 name = "reward_confirmation_receiver"
 version = "0.1.0"
 distribution = "2201.7.2"
