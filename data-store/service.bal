@@ -29,7 +29,7 @@ import ballerinax/mysql.driver as _;
 public type RewardConfirmation record {|
     string userId;
     string rewardId;
-    string rewardConfirmationQrCode;
+    byte[] rewardConfirmationQrCode;
 |};
 
 # Represents a user.
@@ -47,17 +47,19 @@ public type User record {|
 
 # Represents a reward offer.
 #
-# + rewardId - id of the reward
+# + id - id of the reward
 # + name - name of the reward
 # + value - value of the reward
 # + totalPoints - total points of the reward 
 # + description - description of the reward
+# + logoUrl - logo url of the reward
 public type RewardOffer record {|
-    string rewardId;
+    string id;
     string name;
     float value;
     int totalPoints;
     string description;
+    string logoUrl;
 |};
 
 # Represents a user reward.
@@ -88,17 +90,19 @@ public type UserDAO record {|
 
 # Represents a reward offer DAO.
 #
-# + reward_id - id of the reward
+# + id - id of the reward
 # + name - name of the reward
 # + value - value of the reward
 # + total_points - total points of the reward
 # + description - description of the reward
+# + logo_url - logo url of the reward
 public type RewardOfferDAO record {|
-    string reward_id;
+    string id;
     string name;
     float value;
     int total_points;
     string description;
+    string logo_url;
 |};
 
 # Represents a user reward DAO.
@@ -168,11 +172,12 @@ service / on new http:Listener(9090) {
         check from RewardOfferDAO rewardOffer in resultStream
             do {
                 rewardOffers.push({
-                    rewardId: rewardOffer.reward_id,
+                    id: rewardOffer.id,
                     name: rewardOffer.name,
                     value: rewardOffer.value,
                     totalPoints: rewardOffer.total_points,
-                    description: rewardOffer.description
+                    description: rewardOffer.description,
+                    logoUrl: rewardOffer.logo_url
                 });
             };
         check resultStream.close();
