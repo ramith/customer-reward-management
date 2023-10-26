@@ -19,11 +19,15 @@
 package main
 
 import (
+	"context"
 	"encoding/json"
+	"fmt"
 	"net/http"
+	"os"
 
 	"github.com/gorilla/mux"
 	"go.uber.org/zap"
+	"golang.org/x/oauth2/clientcredentials"
 )
 
 type User struct {
@@ -52,7 +56,17 @@ type UserReward struct {
 var logger *zap.Logger
 var userRewards []UserReward
 var rewardOffers []RewardOffer
-var users []User
+
+var clientId = os.Getenv("CLIENT_ID")
+var clientSecret = os.Getenv("CLIENT_SECRET")
+var tokenUrl = os.Getenv("TOKEN_URL")
+var dataStoreApiUrl = os.Getenv("DATA_STORE_API_URL")
+
+var clientCredsConfig = clientcredentials.Config{
+	ClientID:     clientId,
+	ClientSecret: clientSecret,
+	TokenURL:     tokenUrl,
+}
 
 func init() {
 	var err error
@@ -77,10 +91,6 @@ func main() {
 
 	userRewards = append(userRewards, UserReward{"U451298", "RWD34589", "2023-09-04T14:32:21Z", true})
 	userRewards = append(userRewards, UserReward{"U451299", "RWD34590", "2023-09-04T14:32:21Z", true})
-
-	users = append(users, User{"U451298", "John", "Doe", "john@example.com"})
-	users = append(users, User{"U451299", "Katie", "Smith", "katie@example.com"})
-	users = append(users, User{"U451300", "Peter", "Parker", "peter@example.com"})
 
 	r.HandleFunc("/rewards", getRewardOffers).Methods("GET")
 	r.HandleFunc("/rewards/{id}", getRewardOffer).Methods("GET")
@@ -120,6 +130,16 @@ func getUserRewards(w http.ResponseWriter, r *http.Request) {
 func getUserDetails(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	params := mux.Vars(r)
+
+	var users []User
+	users, err := FetchUsersFromDataStoreApi()
+	if err != nil {
+		logger.Error("failed to fetch users", zap.Error(err))
+		w.WriteHeader(http.StatusInternalServerError)
+		w.Write([]byte("failed to fetch user details"))
+		return
+	}
+
 	for _, user := range users {
 		if user.UserId == params["id"] {
 			json.NewEncoder(w).Encode(user)
@@ -131,4 +151,32 @@ func getUserDetails(w http.ResponseWriter, r *http.Request) {
 	logger.Info("user not found", zap.String("user id", params["id"]))
 	w.WriteHeader(http.StatusNotFound)
 	json.NewEncoder(w).Encode(&User{})
+}
+
+func FetchUsersFromDataStoreApi() ([]User, error) {
+	// Construct the full URL using the base URL from the environment variable
+	url := fmt.Sprintf("%s/users", dataStoreApiUrl)
+	// Make the HTTP GET request
+	resp, err := clientCredsConfig.Client(context.Background()).Get(url)
+	if err != nil {
+		logger.Error("Failed to fetch users", zap.Error(err))
+		return nil, fmt.Errorf("failed to fetch users: %v", err)
+	}
+	defer resp.Body.Close()
+
+	// Check for non-200 status codes
+	if resp.StatusCode != http.StatusOK {
+		logger.Warn("API responded with non-200 status code", zap.Int("statusCode", resp.StatusCode))
+		return nil, fmt.Errorf("API responded with status code: %d", resp.StatusCode)
+	}
+
+	// Decode the response body into the User struct
+	var users []User
+	if err := json.NewDecoder(resp.Body).Decode(&users); err != nil {
+		logger.Error("Failed to decode users data", zap.Error(err))
+		return nil, fmt.Errorf("failed to decode users data: %v", err)
+	}
+
+	logger.Info("Successfully fetched users")
+	return users, nil
 }

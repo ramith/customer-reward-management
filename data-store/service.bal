@@ -148,7 +148,7 @@ service / on new http:Listener(9090) {
 
     resource function get users() returns User[]|error {
         User[] users = [];
-        sql:ParameterizedQuery selectQuery = `SELECT * FROM user`;
+        sql:ParameterizedQuery selectQuery = `SELECT user_id, first_name, last_name, email FROM user`;
         stream<UserDAO, error?> resultStream = mysqlEndpoint->query(selectQuery);
         check from UserDAO user in resultStream
             do {
