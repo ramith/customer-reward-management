@@ -167,7 +167,9 @@ service / on new http:Listener(9090) {
 
     resource function get reward\-offers() returns RewardOffer[]|error {
         RewardOffer[] rewardOffers = [];
-        sql:ParameterizedQuery selectQuery = `SELECT * FROM reward_offer`;
+        sql:ParameterizedQuery selectQuery = `
+            SELECT id, name, value, total_points, description, logo_url FROM reward_offer
+        `;
         stream<RewardOfferDAO, error?> resultStream = mysqlEndpoint->query(selectQuery);
         check from RewardOfferDAO rewardOffer in resultStream
             do {
@@ -188,7 +190,9 @@ service / on new http:Listener(9090) {
 
     resource function get user\-rewards() returns UserReward[]|error {
         UserReward[] userRewards = [];
-        sql:ParameterizedQuery selectQuery = `SELECT * FROM user_reward`;
+        sql:ParameterizedQuery selectQuery = `
+            SELECT user_id, selected_reward_deal_id, timestamp, accepted_tnc FROM user_reward
+        `;
         stream<UserRewardDAO, error?> resultStream = mysqlEndpoint->query(selectQuery);
         check from UserRewardDAO userReward in resultStream
             do {
