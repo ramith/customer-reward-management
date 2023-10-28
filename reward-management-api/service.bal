@@ -213,15 +213,21 @@ service / on new http:Listener(9090) {
     resource function get qr\-code(string userId, string rewardId) returns http:Response|error {
         log:printInfo("get reward confirmation", userId = userId, rewardId = rewardId);
 
-        RewardConfirmation|http:Error rewardConfirmation = 
+        http:Response|http:ClientError response = 
             loyaltyAPIEndpoint->/reward\-confirmation(userId = userId, rewardId = rewardId);
-        if rewardConfirmation is http:Error {
-            log:printError("error retrieving reward confirmation: ", 'error = rewardConfirmation);
-            return rewardConfirmation;
+        if response is http:Response  && response.statusCode == http:STATUS_OK {
+            json jsonPayload = check response.getJsonPayload();
+            log:printInfo("reward confirmation retrieved successfully", jsonPayload = jsonPayload);
+            RewardConfirmation rewardConfirmation = check jsonPayload.cloneWithType();
+            byte[] binaryPayload = rewardConfirmation.rewardConfirmationQrCode;
+            log:printInfo("reward confirmation qr code retrieved successfully", binaryPayload = binaryPayload);
+
+            http:Response newResponse = new;
+            newResponse.setBinaryPayload(binaryPayload, mime:IMAGE_PNG);
+            return newResponse;
+        } else {
+            return response;
         }
-        http:Response newResponse = new;
-        newResponse.setBinaryPayload(rewardConfirmation.rewardConfirmationQrCode, mime:IMAGE_PNG);
-        return newResponse;
     }
 }
 
