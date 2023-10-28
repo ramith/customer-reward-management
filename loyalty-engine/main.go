@@ -182,11 +182,9 @@ func getUserDetails(w http.ResponseWriter, r *http.Request) {
 
 func getRewardConfirmation(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
-	params := mux.Vars(r)
-	userId := params["userId"]
-	rewardId := params["rewardId"]
-	logger.Info("get reward confirmation for:", zap.Any("user id", params["userId"]),
-		zap.Any("reward id", params["rewardId"]))
+	userId := r.URL.Query().Get("userId")
+	rewardId := r.URL.Query().Get("rewardId")
+	logger.Info("get reward confirmation for:", zap.String("userId", userId), zap.String("rewardId", rewardId))
 
 	rewardConfirmation, err := FetchRewardConfirmationFromDataStoreAPI(userId, rewardId)
 	if err != nil {
@@ -195,6 +193,7 @@ func getRewardConfirmation(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte("failed to fetch reward confirmation"))
 		return
 	}
+	logger.Info("reward confirmation: ", zap.Any("reward confirmation", rewardConfirmation))
 
 	json.NewEncoder(w).Encode(rewardConfirmation)
 }
