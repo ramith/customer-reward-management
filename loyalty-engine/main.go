@@ -53,6 +53,12 @@ type UserReward struct {
 	AcceptedTnC          bool   `json:"acceptedTnC"`
 }
 
+type RewardConfirmation struct {
+	UserId                   string `json:"userId"`
+	RewardId                 string `json:"rewardId"`
+	RewardConfirmationQrCode []byte `json:"rewardConfirmationQrCode"`
+}
+
 var logger *zap.Logger
 
 var clientId = os.Getenv("CLIENT_ID")
@@ -86,6 +92,7 @@ func main() {
 	r.HandleFunc("/rewards/{id}", getRewardOffer).Methods("GET")
 	r.HandleFunc("/user-rewards", getUserRewards).Methods("GET")
 	r.HandleFunc("/user/{id}", getUserDetails).Methods("GET")
+	r.HandleFunc("/reward-confirmation", getRewardConfirmation).Methods("GET")
 	http.ListenAndServe(":8080", r)
 }
 
@@ -173,6 +180,25 @@ func getUserDetails(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(&User{})
 }
 
+func getRewardConfirmation(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	params := mux.Vars(r)
+	userId := params["userId"]
+	rewardId := params["rewardId"]
+	logger.Info("get reward confirmation for:", zap.Any("user id", params["userId"]),
+		zap.Any("reward id", params["rewardId"]))
+
+	rewardConfirmation, err := FetchRewardConfirmationFromDataStoreAPI(userId, rewardId)
+	if err != nil {
+		logger.Error("failed to fetch reward confirmation", zap.Error(err))
+		w.WriteHeader(http.StatusInternalServerError)
+		w.Write([]byte("failed to fetch reward confirmation"))
+		return
+	}
+
+	json.NewEncoder(w).Encode(rewardConfirmation)
+}
+
 func FetchRewardOffersFromDataStoreAPI() ([]RewardOffer, error) {
 	// Construct the full URL using the base URL from the environment variable
 	url := fmt.Sprintf("%s/reward-offers", dataStoreApiUrl)
@@ -255,4 +281,33 @@ func FetchUsersFromDataStoreAPI() ([]User, error) {
 
 	logger.Info("successfully fetched users")
 	return users, nil
+}
+
+func FetchRewardConfirmationFromDataStoreAPI(userId string, rewardId string) (*RewardConfirmation, error) {
+	// Construct the full URL using the base URL from the environment variable
+	url := fmt.Sprintf("%s/reward-confirmation?userId=%s&rewardId=%s", dataStoreApiUrl, userId, rewardId)
+	// Make the HTTP GET request
+	resp, err := clientCredsConfig.Client(context.Background()).Get(url)
+	if err != nil {
+		logger.Error("failed to fetch reward confirmatio", zap.Error(err))
+		return nil, fmt.Errorf("failed to fetch reward confirmatio: %v", err)
+	}
+	defer resp.Body.Close()
+
+	// Check for non-200 status codes
+	if resp.StatusCode != http.StatusOK {
+		logger.Warn("API responded with non-200 status code", zap.Int("statusCode", resp.StatusCode))
+		return nil, fmt.Errorf("API responded with status code: %d", resp.StatusCode)
+	}
+
+	// Decode the response body into the User struct
+	var rewardConfirmation RewardConfirmation
+	if err := json.NewDecoder(resp.Body).Decode(&rewardConfirmation); err != nil {
+		logger.Error("failed to decode reward confirmation data", zap.Error(err))
+		return nil, fmt.Errorf("failed to decode reward confirmation data: %v", err)
+	}
+
+	logger.Info("successfully fetched reward confirmation", zap.String("userId", userId),
+		zap.String("rewardId", rewardId))
+	return &rewardConfirmation, nil
 }

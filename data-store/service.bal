@@ -75,6 +75,17 @@ public type UserReward record {|
     boolean acceptedTnC;
 |};
 
+# Represents a reward confirmation DAO.
+#
+# + user_id - id of the user
+# + reward_id - reward id
+# + reward_confirmation_qrcode - reward confirmation QR code
+public type RewardConfirmationDAO record {|
+    string user_id;
+    string reward_id;
+    byte[] reward_confirmation_qrcode;
+|};
+
 # Represents a user DAO.
 #
 # + user_id - id of the user 
@@ -144,6 +155,22 @@ service / on new http:Listener(9090) {
             log:printError(msg);
             return error(msg);
         }
+    }
+
+    resource function get reward\-confirmation(string userId, string rewardId) returns RewardConfirmation|error {
+        RewardConfirmation rewardConfirmation;
+        log:printInfo("get reward confirmation for: ", userId = userId, rewardId = rewardId);
+        sql:ParameterizedQuery selectQuery = `
+            SELECT reward_id, user_id, reward_confirmation_qrcode FROM reward_confirmation
+            WHERE user_id = ${userId} AND reward_id = ${rewardId}
+        `;
+        RewardConfirmationDAO result = check mysqlEndpoint->queryRow(selectQuery);
+        rewardConfirmation = {
+            userId: result.user_id,
+            rewardId: result.reward_id,
+            rewardConfirmationQrCode: result.reward_confirmation_qrcode
+        };
+        return rewardConfirmation;
     }
 
     resource function get users() returns User[]|error {
