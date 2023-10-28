@@ -76,7 +76,37 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/User'
-
+          
+  /reward-confirmation:
+    get:
+      summary: Get reward confirmation.
+      parameters:
+      - name: userId
+        in: query
+        description: User ID
+        required: true
+        schema:
+          type: string
+      - name: rewardId
+        in: query
+        description: Reward ID
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Reward confirmation.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RewardConfirmation'
+        '500':
+          description: Internal server error.
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: "failed to fetch reward confirmation"
 components:
   schemas:
     User:
@@ -133,3 +163,17 @@ components:
         acceptedTnC:
           type: boolean
           description: Indicates if user accepted the Terms and Conditions.
+    RewardConfirmation:
+      type: object
+      properties:
+        userId:
+          type: string
+          description: Unique user identifier.
+        rewardId:
+          type: string
+          description: ID of the reward.
+        rewardConfirmationQrCode:
+          type: string
+          description: Timestamp of the reward selection.
+          format: byte
+    
