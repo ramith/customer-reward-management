@@ -213,10 +213,10 @@ service / on new http:Listener(9090) {
     resource function get qr\-code(string userId, string rewardId) returns http:Response|error {
         log:printInfo("get reward confirmation", userId = userId, rewardId = rewardId);
 
-        RewardConfirmation|http:ClientError rewardConfirmation = 
+        RewardConfirmation|http:Error rewardConfirmation = 
             loyaltyAPIEndpoint->/reward\-confirmation(userId = userId, rewardId = rewardId);
         if rewardConfirmation is http:Error {
-            log:printError("error retrieving user: ", 'error = rewardConfirmation);
+            log:printError("error retrieving reward confirmation: ", 'error = rewardConfirmation);
             return rewardConfirmation;
         }
         http:Response newResponse = new;

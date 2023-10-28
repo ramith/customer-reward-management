@@ -54,9 +54,9 @@ type UserReward struct {
 }
 
 type RewardConfirmation struct {
-	UserId                   string `json:"userId"`
-	RewardId                 string `json:"rewardId"`
-	RewardConfirmationQrCode []byte `json:"rewardConfirmationQrCode"`
+	UserId                   string          `json:"userId"`
+	RewardId                 string          `json:"rewardId"`
+	RewardConfirmationQrCode json.RawMessage `json:"rewardConfirmationQrCode"`
 }
 
 var logger *zap.Logger
@@ -307,6 +307,6 @@ func FetchRewardConfirmationFromDataStoreAPI(userId string, rewardId string) (*R
 	}
 
 	logger.Info("successfully fetched reward confirmation", zap.String("userId", userId),
-		zap.String("rewardId", rewardId))
+		zap.String("rewardId", rewardId), zap.Any("rewardConfirmation", rewardConfirmation))
 	return &rewardConfirmation, nil
 }

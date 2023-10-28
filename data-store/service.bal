@@ -170,6 +170,8 @@ service / on new http:Listener(9090) {
             rewardId: result.reward_id,
             rewardConfirmationQrCode: result.reward_confirmation_qrcode
         };
+        string msg = "successfully retrieved the reward confirmation";
+        log:printInfo(msg, rewardConfirmation = rewardConfirmation);
         return rewardConfirmation;
     }
 
