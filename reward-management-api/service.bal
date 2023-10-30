@@ -106,6 +106,17 @@ public type RewardConfirmation record {|
     string rewardConfirmationNumber;
 |};
 
+# Represents a reward confirmation with QR code.
+#
+# + userId - id of the user
+# + rewardId - reward id
+# + qrCode - qr code
+public type RewardConfirmationWithQR record {|
+    string userId;
+    string rewardId;
+    string qrCode;
+|};
+
 configurable string clientId = ?;
 configurable string clientSecret = ?;
 configurable string tokenUrl = ?;
@@ -216,13 +227,39 @@ service / on new http:Listener(9090) {
 
         http:Response|http:ClientError response = loyaltyAPIEndpoint->/qr\-code(userId = userId, rewardId = rewardId);
         if response is http:Response  && response.statusCode == http:STATUS_OK {
-                byte[] binaryPayload = check response.getBinaryPayload();
-                http:Response newResponse = new;
-                newResponse.setBinaryPayload(binaryPayload, mime:IMAGE_PNG);
-                return newResponse;
+            byte[] binaryPayload = check response.getBinaryPayload();
+            http:Response newResponse = new;
+            newResponse.setBinaryPayload(binaryPayload, mime:IMAGE_PNG);
+            return newResponse;
         } else {
             return response;
         }
+    }
+
+    resource function get qr\-codes(string userId) returns http:Response|error {
+        log:printInfo("generate QR code for: ", userId = userId);
+
+        http:Response|http:ClientError response = loyaltyAPIEndpoint->/qr\-codes(userId = userId);
+        if response is http:Response  && response.statusCode == http:STATUS_OK {
+            mime:Entity[] bodyParts = check response.getBodyParts();
+            http:Response newResponse = new;
+            newResponse.setBodyParts(bodyParts, mime:MULTIPART_FORM_DATA);
+            return newResponse;
+        } else {
+            return response;
+        }
+    }
+
+    resource function get reward\-confirmations(string userId) returns RewardConfirmationWithQR[]|error{
+        log:printInfo("get all reward confirmations for: ", userId = userId);
+
+        RewardConfirmationWithQR[]|http:Error rewardConfirmations = 
+            loyaltyAPIEndpoint->/reward\-confirmations(userId = userId);
+        if rewardConfirmations is http:Error {
+            log:printError("error retrieving reward confirmations : ", 'error = rewardConfirmations);
+            return rewardConfirmations;
+        }
+        return rewardConfirmations;
     }
 }
 

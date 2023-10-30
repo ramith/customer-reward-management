@@ -665,6 +665,16 @@ function Q4RewardPage(props: Q4RewardPageProps): JSX.Element {
                     >
                       {"REDEEM"}
                     </ButtonContained>
+                    <ButtonContained
+                      variant="contained"
+                      size={"large"}
+                      color={"primary"}
+                      disabled={!data.isAgreementChecked}
+                      onClick={() => fns.handleConfirmedRewardsClick(data.reward?.id)}
+                      data={data}
+                    >
+                      {"CONFIRMED REWARDS"}
+                    </ButtonContained>
                   </Details4>
                 </Text1>
               </Details3>

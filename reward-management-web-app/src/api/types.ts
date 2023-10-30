@@ -16,3 +16,9 @@ export interface Reward{
     totalPoints: number;
     description?: string;
 }
+
+export interface RewardConfirmation{
+    userId: string;
+    rewardId: string;
+    qrCode: string;
+}

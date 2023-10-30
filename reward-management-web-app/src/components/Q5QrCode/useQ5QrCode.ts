@@ -15,8 +15,8 @@ import React, { useEffect } from "react";
 import useQ5QrCodeResponsiveSize from "./useQ5QrCodeResponsiveSize";
 import { useAuthContext } from "@asgardeo/auth-react";
 import { useParams, useNavigate } from "react-router-dom";
-import { CardDetails, Reward } from "src/api/types";
-import { getQRCode, getCardDetails, getRewardDetails } from "src/api/api";
+import { CardDetails, Reward, RewardConfirmation } from "src/api/types";
+import { getQRCode, getCardDetails, getRewardDetails, getRewardConfirmations } from "src/api/api";
 
 /* These are the possible values for the current variant. Use this to change the currentVariant dynamically.
 Please don't modify */
@@ -77,6 +77,20 @@ const useQ5QrCode = () => {
     rewardId: string
   ) {
     setIsQRLoading(true);
+    getRewardConfirmations(userId).then((res) => {
+      console.log('reward confirmations');
+      console.log(res);
+      const rewardConfirmations: RewardConfirmation[] = res.data;
+      rewardConfirmations.forEach((rewardConfirmation) => {
+        console.log(rewardConfirmation);
+        const base64Image = `data:image/png;base64,${rewardConfirmation.qrCode}`; // Replace with your base64-encoded image data
+        // Create an image element to display the base64-encoded image
+        const img = document.createElement('img');
+        img.src = base64Image;
+        img.alt = `Image from ${rewardConfirmation.rewardId}`;
+        document.body.appendChild(img);
+      });
+    })
     getQRCode(userId, rewardId)
       .then((res) => {
         const imageObjectURL = URL.createObjectURL(res.data);

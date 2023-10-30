@@ -98,6 +98,9 @@ const useQ4RewardPage = () => {
   const handleRedeemClick = (param1) => {
     navigate(`/qr-code/${param1}`);
   };
+  const handleConfirmedRewardsClick = (param1) => {
+    navigate(`/confirmed-rewards/${param1}`);
+  }
   const breakpointsVariant = useQ4RewardPageResponsiveSize();
 
   React.useEffect(() => {
@@ -124,6 +127,7 @@ const useQ4RewardPage = () => {
   const fns: any = {
     setCurrentVariant,
     handleRedeemClick,
+    handleConfirmedRewardsClick,
     setIsAgreementChecked,
   };
 

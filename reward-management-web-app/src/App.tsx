@@ -7,6 +7,7 @@ import Q2Portal from 'src/components/Q2Portal/Q2Portal';
 import Q5QrCode from 'src/components/Q5QrCode/Q5QrCode';
 import Q3Rewards from 'src/components/Q3Rewards/Q3Rewards';
 import Q4RewardPage from 'src/components/Q4RewardPage/Q4RewardPage';
+import Q6RewardConfirmations from './components/Q6RewardConfirmations/Q6RewardConfirmations';
 
 function App() {
   return (
@@ -18,6 +19,7 @@ function App() {
             <Route path="/qr-code/:rewardId" element={<Q5QrCode />} />
             <Route path="/rewards" element={<Q3Rewards />} />
             <Route path="/reward-details/:rewardId" element={<Q4RewardPage />} />
+            <Route path="/confirmed-rewards/:rewardId" element={<Q6RewardConfirmations />} />
           </Routes>
         </ThemeProvider>
       </StyledEngineProvider>

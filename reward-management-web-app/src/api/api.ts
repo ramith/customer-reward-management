@@ -1,6 +1,6 @@
 import { get } from "./http";
 import { AxiosResponse } from "axios";
-import { CardDetails, Reward } from "./types";
+import { CardDetails, Reward, RewardConfirmation } from "./types";
 
 // const qrGeneratorUrl = window.config.qrGeneratorApiUrl;
 
@@ -33,4 +33,15 @@ export const getQRCode = async (userId: string, rewardId: string) => {
   const url = 'qr-code';
   const response = await get(url, params, false, headers, 'blob');
   return response as AxiosResponse<any>;
+}
+
+export const getRewardConfirmations = async (userId: string) => {
+  const params = {
+    userId: userId
+  }
+  const url = 'reward-confirmations';
+  const response = await get(url, params, false);
+  console.log('initial reward confirmations');
+  console.log(response);
+  return response as AxiosResponse<RewardConfirmation[]>;
 }
