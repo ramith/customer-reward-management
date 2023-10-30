@@ -145,19 +145,6 @@ http:Client vendorManagementClientEp = check new (vendorManagementApiUrl, {
     }
 });
 
-# The client to connect to the QR code generator API
-@display {
-    label: "QR Code Generator",
-    id: "qrcode-generator-api"
-}
-http:Client qrCodeGeneratorApiEp = check new (qrcodeGeneratorApiUrl, {
-    auth: {
-        tokenUrl: tokenUrl,
-        clientId: clientId,
-        clientSecret: clientSecret
-    }
-});
-
 # A service representing a network-accessible API
 # bound to port `9090`.
 @display {
@@ -225,19 +212,9 @@ service / on new http:Listener(9090) {
     }
 
     resource function get qr\-code(string userId, string rewardId) returns http:Response|error {
-        log:printInfo("get reward confirmation", userId = userId, rewardId = rewardId);
+        log:printInfo("generate QR code for: ", userId = userId, rewardId = rewardId);
 
-        RewardConfirmation|http:Error rewardConfirmation = 
-            loyaltyAPIEndpoint->/reward\-confirmation(userId = userId, rewardId = rewardId);
-        if rewardConfirmation is http:Error {
-            log:printError("error retrieving reward confirmation: ", 'error = rewardConfirmation);
-            return rewardConfirmation;
-        }
-
-        log:printInfo("generate QR code for reward confirmation: ", 
-            rewardConfirmationNumber = rewardConfirmation.rewardConfirmationNumber);
-        http:Response|http:ClientError response = 
-            qrCodeGeneratorApiEp->/qrcode(content = rewardConfirmation.rewardConfirmationNumber);
+        http:Response|http:ClientError response = loyaltyAPIEndpoint->/qr\-code(userId = userId, rewardId = rewardId);
         if response is http:Response  && response.statusCode == http:STATUS_OK {
                 byte[] binaryPayload = check response.getBinaryPayload();
                 http:Response newResponse = new;

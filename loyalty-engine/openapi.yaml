@@ -107,6 +107,36 @@ paths:
               schema:
                 type: string
                 example: "failed to fetch reward confirmation"
+  /qr-code:
+    get:
+      summary: Get QR code.
+      parameters:
+      - name: userId
+        in: query
+        description: User ID
+        required: true
+        schema:
+          type: string
+      - name: rewardId
+        in: query
+        description: Reward ID
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: QR code.
+          content:
+            image/png:
+              schema:
+                type: object
+        '500':
+          description: Internal server error.
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: "failed to fetch QR code"
 components:
   schemas:
     User:

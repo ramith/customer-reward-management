@@ -21,6 +21,7 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"net/http"
 	"os"
 
@@ -60,6 +61,7 @@ type RewardConfirmation struct {
 var logger *zap.Logger
 
 var dataStoreApiUrl = os.Getenv("DATA_STORE_API_URL")
+var qrCodeGeneratorApiUrl = os.Getenv("QR_CODE_GENERATOR_API_URL")
 
 func init() {
 	var err error
@@ -82,6 +84,7 @@ func main() {
 	r.HandleFunc("/user-rewards", getUserRewards).Methods("GET")
 	r.HandleFunc("/user/{id}", getUserDetails).Methods("GET")
 	r.HandleFunc("/reward-confirmation", getRewardConfirmation).Methods("GET")
+	r.HandleFunc("/qr-code", getQRCode).Methods("GET")
 	http.ListenAndServe(":8080", r)
 }
 
@@ -185,6 +188,32 @@ func getRewardConfirmation(w http.ResponseWriter, r *http.Request) {
 	logger.Info("reward confirmation: ", zap.Any("reward confirmation", rewardConfirmation))
 
 	json.NewEncoder(w).Encode(rewardConfirmation)
+}
+
+func getQRCode(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	userId := r.URL.Query().Get("userId")
+	rewardId := r.URL.Query().Get("rewardId")
+	logger.Info("get reward confirmation for:", zap.String("userId", userId), zap.String("rewardId", rewardId))
+
+	rewardConfirmation, err := FetchRewardConfirmationFromDataStoreAPI(userId, rewardId)
+	if err != nil {
+		logger.Error("failed to fetch reward confirmation", zap.Error(err))
+		w.WriteHeader(http.StatusInternalServerError)
+		w.Write([]byte("failed to fetch reward confirmation"))
+		return
+	}
+	logger.Info("reward confirmation: ", zap.Any("reward confirmation", rewardConfirmation))
+
+	qrCode, err := FetchQRCodeFromQRCodeGeneratorAPI(rewardConfirmation.RewardConfirmationNumber)
+	if err != nil {
+		logger.Error("failed to fetch QR code", zap.Error(err))
+		w.WriteHeader(http.StatusInternalServerError)
+		w.Write([]byte("failed to fetch QR code"))
+	}
+
+	w.Header().Set("Content-Type", "image/png")
+	w.Write(qrCode)
 }
 
 func FetchRewardOffersFromDataStoreAPI() ([]RewardOffer, error) {
@@ -298,4 +327,32 @@ func FetchRewardConfirmationFromDataStoreAPI(userId string, rewardId string) (*R
 	logger.Info("successfully fetched reward confirmation", zap.String("userId", userId),
 		zap.String("rewardId", rewardId), zap.Any("rewardConfirmation", rewardConfirmation))
 	return &rewardConfirmation, nil
+}
+
+func FetchQRCodeFromQRCodeGeneratorAPI(rewardConfirmationNumber string) ([]byte, error) {
+	// Construct the full URL using the base URL from the environment variable
+	url := fmt.Sprintf("%s/qrcode?content=%s", qrCodeGeneratorApiUrl, rewardConfirmationNumber)
+	// Make the HTTP GET request
+	resp, err := http.Get(url)
+	if err != nil {
+		logger.Error("failed to fetch qr code", zap.Error(err))
+		return nil, fmt.Errorf("failed to fetch qr code: %v", err)
+	}
+	defer resp.Body.Close()
+
+	// Check for non-200 status codes
+	if resp.StatusCode != http.StatusOK {
+		logger.Warn("API responded with non-200 status code", zap.Int("statusCode", resp.StatusCode))
+		return nil, fmt.Errorf("API responded with status code: %d", resp.StatusCode)
+	}
+
+	var binaryPayload []byte
+	binaryPayload, err = ioutil.ReadAll(resp.Body)
+	if err != nil {
+		logger.Error("failed to read qr code response body", zap.Error(err))
+		return nil, fmt.Errorf("failed to read qr code response body: %v", err)
+	}
+
+	logger.Info("successfully fetched qr code", zap.String("rewardConfirmationNumber", rewardConfirmationNumber))
+	return binaryPayload, nil
 }
