@@ -54,9 +54,9 @@ type UserReward struct {
 }
 
 type RewardConfirmation struct {
-	UserId                   string          `json:"userId"`
-	RewardId                 string          `json:"rewardId"`
-	RewardConfirmationQrCode json.RawMessage `json:"rewardConfirmationQrCode"`
+	UserId                   string `json:"userId"`
+	RewardId                 string `json:"rewardId"`
+	RewardConfirmationNumber string `json:"rewardConfirmationNumber"`
 }
 
 var logger *zap.Logger

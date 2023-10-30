@@ -25,11 +25,11 @@ import ballerinax/mysql.driver as _;
 #
 # + userId - id of the user
 # + rewardId - reward id
-# + rewardConfirmationQrCode - reward confirmation QR code
+# + rewardConfirmationNumber - reward confirmation number
 public type RewardConfirmation record {|
     string userId;
     string rewardId;
-    byte[] rewardConfirmationQrCode;
+    string rewardConfirmationNumber;
 |};
 
 # Represents a user.
@@ -79,11 +79,11 @@ public type UserReward record {|
 #
 # + user_id - id of the user
 # + reward_id - reward id
-# + reward_confirmation_qrcode - reward confirmation QR code
+# + reward_confirmation_number - reward confirmation number
 public type RewardConfirmationDAO record {|
     string user_id;
     string reward_id;
-    byte[] reward_confirmation_qrcode;
+    string reward_confirmation_number;
 |};
 
 # Represents a user DAO.
@@ -143,8 +143,8 @@ service / on new http:Listener(9090) {
     resource function post reward\-confirmation(@http:Payload RewardConfirmation payload) returns string|error {
         log:printInfo("reward confirmation: ", rewardConfirmation = payload);
         sql:ParameterizedQuery insertQuery = `
-            INSERT INTO reward_confirmation (reward_id, user_id, reward_confirmation_qrcode) 
-            VALUES (${payload.rewardId}, ${payload.userId}, ${payload.rewardConfirmationQrCode})`;
+            INSERT INTO reward_confirmation (reward_id, user_id, reward_confirmation_number) 
+            VALUES (${payload.rewardId}, ${payload.userId}, ${payload.rewardConfirmationNumber})`;
         sql:ExecutionResult result = check mysqlEndpoint->execute(insertQuery);
         if result.affectedRowCount > 0 {
             string msg = "successfully saved the reward confirmation";
@@ -161,14 +161,14 @@ service / on new http:Listener(9090) {
         RewardConfirmation rewardConfirmation;
         log:printInfo("get reward confirmation for: ", userId = userId, rewardId = rewardId);
         sql:ParameterizedQuery selectQuery = `
-            SELECT reward_id, user_id, reward_confirmation_qrcode FROM reward_confirmation
+            SELECT reward_id, user_id, reward_confirmation_number FROM reward_confirmation
             WHERE user_id = ${userId} AND reward_id = ${rewardId}
         `;
         RewardConfirmationDAO result = check mysqlEndpoint->queryRow(selectQuery);
         rewardConfirmation = {
             userId: result.user_id,
             rewardId: result.reward_id,
-            rewardConfirmationQrCode: result.reward_confirmation_qrcode
+            rewardConfirmationNumber: result.reward_confirmation_number
         };
         string msg = "successfully retrieved the reward confirmation";
         log:printInfo(msg, rewardConfirmation = rewardConfirmation);

@@ -24,24 +24,10 @@ public type RewardConfirmationEvent record {|
     string rewardConfirmationNumber;
 |};
 
-public type RewardConfirmation record {|
-    string userId;
-    string rewardId;
-    byte[] rewardConfirmationQrCode;
-|};
-
 configurable string clientId = ?;
 configurable string clientSecret = ?;
 configurable string tokenUrl = ?;
-configurable string qrcodeApiEndpoint = ?;
 configurable string dataSourceApiEndpoint = ?;
-
-# The client to connect to the QR code generator API
-@display {
-    label: "QR Code Generator",
-    id: "qrcode-generator-api"
-}
-http:Client qrCodeClient = check new (qrcodeApiEndpoint);
 
 # The client to connect to the data source API
 @display {
@@ -63,28 +49,14 @@ service / on new http:Listener(9090) {
     resource function post confirm(@http:Payload RewardConfirmationEvent payload) returns error? {
         log:printInfo("reward confirmation received", rewardConfirmation = payload);
 
-        log:printInfo("generate qr code for: ", rewardConformationNumber = payload.rewardConfirmationNumber);
-        http:Response httpResponse = check qrCodeClient->/qrcode(content = payload.rewardConfirmationNumber);
-        // Get the byte payload from the response
-        byte[] imageContent = check httpResponse.getBinaryPayload();
-
-        log:printInfo("successfully generated qr code for: ",
-            rewardConformationNumber = payload.rewardConfirmationNumber, imageContent = imageContent);
-
-        RewardConfirmation rewardConfirmation = {
-            userId: payload.userId,
-            rewardId: payload.rewardId,
-            rewardConfirmationQrCode: imageContent
-        };
-
-        log:printInfo("saving the qrcode to the user profile", userId = payload.userId);
-        http:Response|http:Error response = dataSourceClient->post("/reward-confirmation", rewardConfirmation);
+        log:printInfo("saving the reward confirmation number to the user profile", userId = payload.userId);
+        http:Response|http:Error response = dataSourceClient->post("/reward-confirmation", payload);
         if response is http:Error {
-            string msg = "failed to save the qrcode to the user profile";
+            string msg = "failed to save the reward confirmation number to the user profile";
             log:printError(msg, userId = payload.userId);
             return error(msg);
         }
-        log:printInfo("qrcode successfully saved to the user profile", userId = payload.userId,
+        log:printInfo("reward confirmation number successfully saved to the user profile", userId = payload.userId,
             statusCode = response.statusCode);
     }
 }

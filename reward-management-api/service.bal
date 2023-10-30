@@ -99,11 +99,11 @@ public type RewardOffer record {
 #
 # + userId - id of the user
 # + rewardId - reward id
-# + rewardConfirmationQrCode - reward confirmation QR code
+# + rewardConfirmationNumber - reward confirmation number
 public type RewardConfirmation record {|
     string userId;
     string rewardId;
-    byte[] rewardConfirmationQrCode;
+    string rewardConfirmationNumber;
 |};
 
 configurable string clientId = ?;
@@ -111,6 +111,7 @@ configurable string clientSecret = ?;
 configurable string tokenUrl = ?;
 configurable string loyaltyApiUrl = ?;
 configurable string vendorManagementApiUrl = ?;
+configurable string qrcodeGeneratorApiUrl = ?;
 
 oauth2:ClientOAuth2Provider provider = new ({
     tokenUrl: tokenUrl,
@@ -137,6 +138,19 @@ http:Client loyaltyAPIEndpoint = check new (loyaltyApiUrl, {
     id: "vendor-management-api"
 }
 http:Client vendorManagementClientEp = check new (vendorManagementApiUrl, {
+    auth: {
+        tokenUrl: tokenUrl,
+        clientId: clientId,
+        clientSecret: clientSecret
+    }
+});
+
+# The client to connect to the QR code generator API
+@display {
+    label: "QR Code Generator",
+    id: "qrcode-generator-api"
+}
+http:Client qrCodeGeneratorApiEp = check new (qrcodeGeneratorApiUrl, {
     auth: {
         tokenUrl: tokenUrl,
         clientId: clientId,
@@ -213,18 +227,22 @@ service / on new http:Listener(9090) {
     resource function get qr\-code(string userId, string rewardId) returns http:Response|error {
         log:printInfo("get reward confirmation", userId = userId, rewardId = rewardId);
 
-        http:Response|http:ClientError response = 
+        RewardConfirmation|http:Error rewardConfirmation = 
             loyaltyAPIEndpoint->/reward\-confirmation(userId = userId, rewardId = rewardId);
-        if response is http:Response  && response.statusCode == http:STATUS_OK {
-            json jsonPayload = check response.getJsonPayload();
-            log:printInfo("reward confirmation retrieved successfully", jsonPayload = jsonPayload);
-            RewardConfirmation rewardConfirmation = check jsonPayload.cloneWithType();
-            byte[] binaryPayload = rewardConfirmation.rewardConfirmationQrCode;
-            log:printInfo("reward confirmation qr code retrieved successfully", binaryPayload = binaryPayload);
+        if rewardConfirmation is http:Error {
+            log:printError("error retrieving reward confirmation: ", 'error = rewardConfirmation);
+            return rewardConfirmation;
+        }
 
-            http:Response newResponse = new;
-            newResponse.setBinaryPayload(binaryPayload, mime:IMAGE_PNG);
-            return newResponse;
+        log:printInfo("generate QR code for reward confirmation: ", 
+            rewardConfirmationNumber = rewardConfirmation.rewardConfirmationNumber);
+        http:Response|http:ClientError response = 
+            qrCodeGeneratorApiEp->/qrcode(content = rewardConfirmation.rewardConfirmationNumber);
+        if response is http:Response  && response.statusCode == http:STATUS_OK {
+                byte[] binaryPayload = check response.getBinaryPayload();
+                http:Response newResponse = new;
+                newResponse.setBinaryPayload(binaryPayload, mime:IMAGE_PNG);
+                return newResponse;
         } else {
             return response;
         }

@@ -172,8 +172,7 @@ components:
         rewardId:
           type: string
           description: ID of the reward.
-        rewardConfirmationQrCode:
+        rewardConfirmationNumber:
           type: string
-          description: Timestamp of the reward selection.
-          format: byte
+          description: Reward confirmation number.
     
