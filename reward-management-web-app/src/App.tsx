@@ -19,7 +19,7 @@ function App() {
             <Route path="/qr-code/:rewardId" element={<Q5QrCode />} />
             <Route path="/rewards" element={<Q3Rewards />} />
             <Route path="/reward-details/:rewardId" element={<Q4RewardPage />} />
-            <Route path="/confirmed-rewards/:rewardId" element={<Q6RewardConfirmations />} />
+            <Route path="/confirmed-rewards" element={<Q6RewardConfirmations />} />
           </Routes>
         </ThemeProvider>
       </StyledEngineProvider>

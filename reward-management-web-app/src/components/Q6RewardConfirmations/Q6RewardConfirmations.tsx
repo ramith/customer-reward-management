@@ -22,7 +22,7 @@
  import Footer1 from "src/components/Footer1/Footer1";
  import { Q6RewardConfirmationsProps } from "src/types";
  import useQ6RewardConfirmations from "src/components/Q6RewardConfirmations/useQ6RewardConfirmations";
-import { RewardConfirmation } from "src/api/types";
+import { Reward, RewardConfirmation } from "src/api/types";
  
  const ScreenDesktop: any = styled("div")(({ theme }: any) => ({
    backgroundColor: theme.palette["Other"]["Divider"],
@@ -330,6 +330,7 @@ import { RewardConfirmation } from "src/api/types";
  function Q6RewardConfirmations(props: Q6RewardConfirmationsProps): JSX.Element {
    const { data, fns } = useQ6RewardConfirmations();
    const rewardConfirmations: RewardConfirmation[] = data.rewardConfirmations;
+   const rewardsMap: { [key: string]: Reward } = data.rewardsMap;
  
    return (
      <ScreenDesktop className={props.className}>
@@ -357,16 +358,16 @@ import { RewardConfirmation } from "src/api/types";
                         <TitleTop>
                             <BrandImg>
                             <img
-                                src={data.reward?.logoUrl}
-                                alt={`${data.reward?.name} logo`}
+                                src={rewardsMap[rewardConfirmation.rewardId]?.logoUrl}
+                                alt={`${rewardsMap[rewardConfirmation.rewardId]?.name} logo`}
                             />
                             </BrandImg>
-                            <Title>{data.reward?.name}</Title>
+                            <Title>{rewardsMap[rewardConfirmation.rewardId]?.name}</Title>
                         </TitleTop>
                         <Details1>
                             <Value>
                             <Points>{`Value:`}</Points>
-                            <Points1>{`$${data.reward?.value}`}</Points1>
+                            <Points1>{`$${rewardsMap[rewardConfirmation.rewardId]?.value}`}</Points1>
                             </Value>
                             <Details2>
                             {`Use this QR Code at any Target store by scanning at checkout.`}
