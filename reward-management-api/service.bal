@@ -207,7 +207,8 @@ service / on new http:Listener(9090) {
 
         foreach string headerName in headerNames {
             string headerValue = check request.getHeader(headerName);
-            log:printInfo("header name ${headerName} and value ${headerValue}");
+            log:printInfo("http header", headerName = headerName, headerValue = headerValue);
+
         }
 
         RewardOffer[]|http:Error rewardsOffers = loyaltyAPIEndpoint->/rewards();
