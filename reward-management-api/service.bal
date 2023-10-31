@@ -200,8 +200,15 @@ service / on new http:Listener(9090) {
         return cardDetails;
     }
 
-    resource function get rewards() returns RewardOffer[]|error{
+    resource function get rewards(http:Request request) returns RewardOffer[]|error{
         log:printInfo("get all rewards available");
+
+        string[] headerNames = request.getHeaderNames();
+
+        foreach string headerName in headerNames {
+            string headerValue = check request.getHeader(headerName);
+            log:printInfo("header name ${headerName} and value ${headerValue}");
+        }
 
         RewardOffer[]|http:Error rewardsOffers = loyaltyAPIEndpoint->/rewards();
         if rewardsOffers is http:Error {
