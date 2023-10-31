@@ -163,26 +163,6 @@ paths:
               schema:
                 type: string
                 example: "failed to fetch QR code"
-  /qr-codes:
-    get:
-      summary: Get QR codes.
-      parameters:
-      - name: userId
-        in: query
-        description: User ID
-        required: true
-        schema:
-          type: string
-      responses:
-        '200':
-          description: Status OK.
-        '500':
-          description: Internal server error.
-          content:
-            text/plain:
-              schema:
-                type: string
-                example: "failed to fetch QR code"
 components:
   schemas:
     User:

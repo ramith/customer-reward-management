@@ -23,11 +23,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
-	"mime/multipart"
 	"net/http"
-	"net/textproto"
 	"os"
-	"strconv"
 
 	"github.com/gorilla/mux"
 	"go.uber.org/zap"
@@ -96,7 +93,6 @@ func main() {
 	r.HandleFunc("/reward-confirmation", getRewardConfirmation).Methods("GET")
 	r.HandleFunc("/reward-confirmations", getRewardConfirmations).Methods("GET")
 	r.HandleFunc("/qr-code", getQRCode).Methods("GET")
-	r.HandleFunc("/qr-codes", getQRCodes).Methods("GET")
 	http.ListenAndServe(":8080", r)
 }
 
@@ -261,46 +257,6 @@ func getQRCode(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "image/png")
 	w.Write(qrCode)
-}
-
-func getQRCodes(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
-	userId := r.URL.Query().Get("userId")
-	logger.Info("get reward confirmations for:", zap.String("userId", userId))
-
-	rewardConfirmations, err := FetchRewardConfirmationsFromDataStoreAPI(userId)
-	if err != nil {
-		logger.Error("failed to fetch reward confirmations", zap.Error(err))
-		w.WriteHeader(http.StatusInternalServerError)
-		w.Write([]byte("failed to fetch reward confirmations"))
-		return
-	}
-	logger.Info("reward confirmation: ", zap.Any("reward confirmation", rewardConfirmations))
-
-	writer := multipart.NewWriter(w)
-	defer writer.Close()
-
-	// Set the content type for the multipart response
-	w.Header().Set("Content-Type", "multipart/mixed; boundary="+writer.Boundary())
-
-	qrCodes := make([][]byte, len(rewardConfirmations))
-	for i, rewardConfirmation := range rewardConfirmations {
-		qrCode, err := FetchQRCodeFromQRCodeGeneratorAPI(rewardConfirmation.RewardConfirmationNumber)
-		if err != nil {
-			logger.Error("failed to fetch QR code", zap.Error(err))
-			w.WriteHeader(http.StatusInternalServerError)
-			w.Write([]byte("failed to fetch QR code"))
-		}
-		qrCodes[i] = qrCode
-
-		partHeader := textproto.MIMEHeader{}
-		partHeader.Set("Content-Type", "image/png")
-		partHeader.Set("Content-Disposition", `attachment; filename="qr_code_`+strconv.Itoa(i)+`.png"`)
-		part, _ := writer.CreatePart(partHeader)
-
-		_, _ = part.Write(qrCode)
-	}
-	w.WriteHeader(http.StatusOK)
 }
 
 func FetchRewardOffersFromDataStoreAPI() ([]RewardOffer, error) {

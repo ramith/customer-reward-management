@@ -244,20 +244,6 @@ service / on new http:Listener(9090) {
         }
     }
 
-    resource function get qr\-codes(string userId) returns http:Response|error {
-        log:printInfo("generate QR code for: ", userId = userId);
-
-        http:Response|http:ClientError response = loyaltyAPIEndpoint->/qr\-codes(userId = userId);
-        if response is http:Response  && response.statusCode == http:STATUS_OK {
-            mime:Entity[] bodyParts = check response.getBodyParts();
-            http:Response newResponse = new;
-            newResponse.setBodyParts(bodyParts, mime:MULTIPART_FORM_DATA);
-            return newResponse;
-        } else {
-            return response;
-        }
-    }
-
     resource function get reward\-confirmations(string userId) returns RewardConfirmationWithQR[]|error{
         log:printInfo("get all reward confirmations for: ", userId = userId);
 
