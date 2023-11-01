@@ -109,6 +109,7 @@ const useQ4RewardPage = () => {
     navigate(`/qr-code/${param1}`);
   };
   const handleConfirmedRewardsClick = () => {
+    redeemReward(state.sub, rewardId, true);
     navigate(`/confirmed-rewards`);
   }
   const breakpointsVariant = useQ4RewardPageResponsiveSize();
