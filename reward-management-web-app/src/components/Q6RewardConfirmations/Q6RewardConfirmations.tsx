@@ -340,7 +340,7 @@ import { Reward, RewardConfirmation } from "src/api/types";
        <BannerTop1 />
        {rewardConfirmations.map((rewardConfirmation: RewardConfirmation) => (
             <QrCode1 data={data}>
-                {data.isRewardLoading || data.isQRLoading ? (
+                {data.isRewardLoading || data.isRewardConfirmationsLoading ? (
                 <Skeleton
                     variant="rounded"
                     sx={{ width: "1588px", height: "477px" }}

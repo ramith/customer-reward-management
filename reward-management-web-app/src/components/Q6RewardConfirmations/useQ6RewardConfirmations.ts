@@ -30,11 +30,7 @@ const useQ6RewardConfirmations = () => {
         variantOptions["ScreenDesktop"]
     );
     const navigate = useNavigate();
-    const { rewardId } = useParams();
-    const [qrCode, setQrCode] = React.useState<any>();
     const [isRewardLoading, setIsRewardLoading] = React.useState(false);
-    const [isQRLoading, setIsQRLoading] = React.useState(true);
-    const [reward, setReward] = React.useState<Reward | null>(null);
     const [isRewardConfirmationsLoading, setIsRewardConfirmationsLoading] = React.useState(true);
     const [rewardConfirmations, setRewardConfirmations] = React.useState<RewardConfirmation[]>([]);
     const [rewardsMap, setRewardsMap] = React.useState<{ [key: string]: Reward }>({});
@@ -55,71 +51,6 @@ const useQ6RewardConfirmations = () => {
                 return "";
         }
     };
-
-    async function getRewardInfo() {
-        if (rewardId) {
-            setIsRewardLoading(true);
-            getRewardDetails(rewardId)
-                .then((res) => {
-                    const logoUrl = getRewardImage(res.data.name);
-                    setReward({ ...res.data, logoUrl });
-                })
-                .catch((e) => {
-                    console.log(e);
-                })
-                .finally(() => {
-                    setIsRewardLoading(false);
-                });
-        }
-    }
-
-    async function getRewardInfoById(rewardId: string): Promise<Reward | null> {
-        if (rewardId) {
-            getRewardDetails(rewardId)
-                .then((res) => {
-                    const logoUrl = getRewardImage(res.data.name);
-                    return { ...res.data, logoUrl };
-                })
-                .catch((e) => {
-                    console.log(e);
-                    return null;
-                })
-        }
-        return null;
-    }
-
-    async function getGeneratedQRCode(
-        userId: string,
-        rewardId: string
-    ) {
-        setIsQRLoading(true);
-        getRewardConfirmations(userId).then((res) => {
-            console.log('reward confirmations');
-            console.log(res);
-            const rewardConfirmations: RewardConfirmation[] = res.data;
-            rewardConfirmations.forEach((rewardConfirmation) => {
-                console.log(rewardConfirmation);
-                const base64Image = `data:image/png;base64,${rewardConfirmation.qrCode}`; // Replace with your base64-encoded image data
-                // Create an image element to display the base64-encoded image
-                const img = document.createElement('img');
-                img.src = base64Image;
-                img.alt = `Image from ${rewardConfirmation.rewardId}`;
-                document.body.appendChild(img);
-            });
-        })
-        getQRCode(userId, rewardId)
-            .then((res) => {
-                const imageObjectURL = URL.createObjectURL(res.data);
-                setQrCode(imageObjectURL);
-                setIsQRLoading(false);
-            })
-            .catch((e) => {
-                console.log(e);
-            })
-            .finally(() => {
-                setIsRewardLoading(false);
-            });
-    }
 
     async function getConfirmedRewards(userId) {
         setIsRewardConfirmationsLoading(true);
@@ -143,15 +74,8 @@ const useQ6RewardConfirmations = () => {
             // TODO: Replace with below logic   
             //    getConfirmedRewards(state.sub);
             getConfirmedRewards("U451298");
-            getRewardInfo();
         }
     }, [state.isAuthenticated, state.sub]);
-
-    useEffect(() => {
-        if (state.sub && reward) {
-            getGeneratedQRCode("U451298", reward.id);
-        }
-    }, [state.sub, reward]);
 
     async function getRewardDeatils() {
         getRewards()
@@ -182,11 +106,8 @@ const useQ6RewardConfirmations = () => {
 
     const data: any = {
         currentVariant,
-        reward,
         isRewardLoading,
-        isQRLoading,
         isRewardConfirmationsLoading,
-        qrCode,
         rewardConfirmations,
         rewards,
         rewardsMap,
