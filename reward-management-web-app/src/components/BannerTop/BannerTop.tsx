@@ -513,7 +513,13 @@ function BannerTop(props: BannerTopProps): JSX.Element {
             </Link5>
             <Link6>
               <InternalLink to="/rewards">
-                <Rewards>{`Rewards`}</Rewards>
+                <Rewards>{`Redeem Rewards`}</Rewards>
+              </InternalLink>
+              {false && <Underline5></Underline5>}
+            </Link6>
+            <Link6>
+              <InternalLink to="/confirmed-rewards">
+                <Rewards>{`Confirmed Rewards`}</Rewards>
               </InternalLink>
               {false && <Underline5></Underline5>}
             </Link6>
