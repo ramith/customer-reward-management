@@ -495,22 +495,6 @@ function BannerTop(props: BannerTopProps): JSX.Element {
               <Accounts>{`Accounts`}</Accounts>
               <Underline></Underline>
             </Link1>
-            <Link2>
-              <PayTransfer data={data}>{`Pay & transfer`}</PayTransfer>
-              {false && <Underline1></Underline1>}
-            </Link2>
-            <Link3>
-              <Investments>{`Investments`}</Investments>
-              {false && <Underline2></Underline2>}
-            </Link3>
-            <Link4>
-              <Security>{`Security`}</Security>
-              {false && <Underline3></Underline3>}
-            </Link4>
-            <Link5>
-              <Products>{`Products`}</Products>
-              {false && <Underline4></Underline4>}
-            </Link5>
             <Link6>
               <InternalLink to="/rewards">
                 <Rewards>{`Redeem Rewards`}</Rewards>
