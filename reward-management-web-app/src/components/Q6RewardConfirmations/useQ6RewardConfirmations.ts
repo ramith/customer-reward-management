@@ -73,7 +73,7 @@ const useQ6RewardConfirmations = () => {
         if (state.isAuthenticated && state.sub) {
             // TODO: Replace with below logic   
             //    getConfirmedRewards(state.sub);
-            getConfirmedRewards("U451298");
+            getConfirmedRewards(state.sub);
         }
     }, [state.isAuthenticated, state.sub]);
 
