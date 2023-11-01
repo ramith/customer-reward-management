@@ -31,7 +31,7 @@ const useQ6RewardConfirmations = () => {
     );
     const navigate = useNavigate();
     const [isRewardLoading, setIsRewardLoading] = React.useState(false);
-    const [isRewardConfirmationsLoading, setIsRewardConfirmationsLoading] = React.useState(true);
+    const [isRewardConfirmationsLoading, setIsRewardConfirmationsLoading] = React.useState(false);
     const [rewardConfirmations, setRewardConfirmations] = React.useState<RewardConfirmation[]>([]);
     const [rewardsMap, setRewardsMap] = React.useState<{ [key: string]: Reward }>({});
     const [rewards, setRewards] = React.useState<Reward[]>([]);
