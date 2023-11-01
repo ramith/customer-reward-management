@@ -57,8 +57,8 @@ import { Reward, RewardConfirmation } from "src/api/types";
    alignItems: `flex-start`,
    padding:
      data.currentVariant === "ScreenMobile"
-       ? `10px 20px 100px 20px`
-       : `10px 70px 100px 70px`,
+       ? `10px 20px 20px 20px`
+       : `10px 70px 20px 70px`,
    boxSizing: `border-box`,
    alignSelf: `stretch`,
    margin: `11px 0px 0px 0px`,
@@ -335,7 +335,7 @@ import { Reward, RewardConfirmation } from "src/api/types";
    return (
      <ScreenDesktop className={props.className}>
        <Helmet>
-         <title>Q6RewardConfirmations</title>
+         <title>Confirmed Rewards</title>
        </Helmet>
        <BannerTop1 />
        {rewardConfirmations.map((rewardConfirmation: RewardConfirmation) => (

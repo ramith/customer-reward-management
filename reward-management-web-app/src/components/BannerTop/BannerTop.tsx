@@ -494,10 +494,10 @@ function BannerTop(props: BannerTopProps): JSX.Element {
         <LinksContainer>
           <Links1>
             <Link1>
-              <InternalLink to="/">
+              <InternalLink to="/accounts">
                 <Accounts>{`Accounts`}</Accounts>
               </InternalLink>
-              {splitLocation[1] == "" && <Underline></Underline>}
+              {(splitLocation[1] == "accounts" || splitLocation[1] == "") && <Underline></Underline>}
             </Link1>
             <Link6>
               <InternalLink to="/rewards">
