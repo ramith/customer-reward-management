@@ -492,8 +492,10 @@ function BannerTop(props: BannerTopProps): JSX.Element {
         <LinksContainer>
           <Links1>
             <Link1>
-              <Accounts>{`Accounts`}</Accounts>
-              <Underline></Underline>
+              <InternalLink to="/">
+                <Accounts>{`Accounts`}</Accounts>
+              </InternalLink>
+              {false && <Underline></Underline>}
             </Link1>
             <Link6>
               <InternalLink to="/rewards">
