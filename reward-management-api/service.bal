@@ -197,8 +197,12 @@ service / on new http:Listener(9090) {
         return cardDetails;
     }
 
-    resource function get rewards(http:Request request) returns RewardOffer[]|error {
+    resource function get rewards(http:Request request, http:Headers headers) returns RewardOffer[]|error {
         log:printInfo("get all rewards available");
+        string jwtHeader = check headers.getHeader("x-jwt-assertion");
+        User user = check validateAndDecodeUserInfo(jwtHeader);
+
+        log:printInfo("user decoded: ", userId = user.userId);
 
         string[] headerNames = request.getHeaderNames();
 
