@@ -65,7 +65,7 @@ const useQ6RewardConfirmations = () => {
                 console.log(e);
             })
             .finally(() => {
-                setIsRewardLoading(false);
+                setIsRewardConfirmationsLoading(false);
             });
     }
 
@@ -78,6 +78,7 @@ const useQ6RewardConfirmations = () => {
     }, [state.isAuthenticated, state.sub]);
 
     async function getRewardDeatils() {
+        setIsRewardLoading(true);
         getRewards()
             .then((res) => {
                 setRewards(res.data);
@@ -86,10 +87,13 @@ const useQ6RewardConfirmations = () => {
                     map[reward.id] = { ...reward, logoUrl };
                     return map;
                 }, {}));
-        })
+            })
             .catch((e) => {
                 console.log(e);
             })
+            .finally(() => {
+                setIsRewardLoading(false);
+            });
     }
 
     useEffect(() => {
