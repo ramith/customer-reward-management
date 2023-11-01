@@ -84,6 +84,27 @@ import { Reward, RewardConfirmation } from "src/api/types";
    overflow: `hidden`,
    alignSelf: data.currentVariant === "ScreenMobile" ? `stretch` : "unset",
  }));
+
+ const EmptyConfirmedRewardsCardContainer: any = styled("div", {
+  shouldForwardProp: (prop: any) => !["data"].includes(prop.toString()),
+  })(({ theme, data }: any) => ({
+    backgroundColor: theme.palette["Background"]["Background"],
+    border: `1px solid rgba(176, 176, 176, 1)`,
+    boxSizing: `border-box`,
+    borderRadius: `12px`,
+    display: `flex`,
+    position: `relative`,
+    isolation: `isolate`,
+    flexDirection: data.currentVariant === "ScreenMobile" ? `column` : `row`,
+    justifyContent: `flex-center`,
+    alignItems: `flex-center`,
+    padding: data.currentVariant === "ScreenMobile" ? `40px 0px` : `60px 20px`,
+    flex: data.currentVariant === "ScreenMobile" ? "unset" : `1`,
+    margin: `0px`,
+    overflow: `hidden`,
+    alignSelf: data.currentVariant === "ScreenMobile" ? `stretch` : "unset",
+    width: "100%",
+  }));
  
  const Content: any = styled("div", {
    shouldForwardProp: (prop: any) => !["data"].includes(prop.toString()),
@@ -101,6 +122,23 @@ import { Reward, RewardConfirmation } from "src/api/types";
    margin: `0px`,
    alignSelf: data.currentVariant === "ScreenMobile" ? `stretch` : "unset",
  }));
+
+ const EmptyConfirmedRewardsContent: any = styled("div", {
+  shouldForwardProp: (prop: any) => !["data"].includes(prop.toString()),
+})(({ data }: any) => ({
+  borderRadius: `0px`,
+  display: `flex`,
+  position: `relative`,
+  isolation: `isolate`,
+  flexDirection: data.currentVariant === "ScreenMobile" ? `column` : `row`,
+  justifyContent: `flex-center`,
+  alignItems: `flex-center`,
+  padding: `0px 20px 0px 20px`,
+  boxSizing: `border-box`,
+  flex: data.currentVariant === "ScreenMobile" ? "unset" : `1`,
+  margin: `0px`,
+  alignSelf: data.currentVariant === "ScreenMobile" ? `stretch` : "unset",
+}));
  
  const QrCode2: any = styled("div", {
    shouldForwardProp: (prop: any) => !["data"].includes(prop.toString()),
@@ -128,8 +166,28 @@ import { Reward, RewardConfirmation } from "src/api/types";
    overflow: `hidden`,
    // backgroundImage: props.imageSrc,
  }));
- 
+
  const Details: any = styled("div", {
+    shouldForwardProp: (prop: any) => !["data"].includes(prop.toString()),
+  })(({ data }: any) => ({
+    borderRadius: `0px`,
+    display: `flex`,
+    position: `relative`,
+    isolation: `isolate`,
+    flexDirection: `row`,
+    justifyContent: `space-between`,
+    alignItems: `center`,
+    padding: `0px`,
+    boxSizing: `border-box`,
+    flex: data.currentVariant === "ScreenMobile" ? "unset" : `1`,
+    margin:
+      data.currentVariant === "ScreenMobile"
+        ? `20px 0px 0px 0px`
+        : `0px 0px 0px 54px`,
+    alignSelf: data.currentVariant === "ScreenMobile" ? `stretch` : "unset",
+  }));
+ 
+ const EmptyConfirmedRewardsDetails: any = styled("div", {
    shouldForwardProp: (prop: any) => !["data"].includes(prop.toString()),
  })(({ data }: any) => ({
    borderRadius: `0px`,
@@ -137,7 +195,7 @@ import { Reward, RewardConfirmation } from "src/api/types";
    position: `relative`,
    isolation: `isolate`,
    flexDirection: `row`,
-   justifyContent: `space-between`,
+   justifyContent: `center`,
    alignItems: `center`,
    padding: `0px`,
    boxSizing: `border-box`,
@@ -331,6 +389,72 @@ import { Reward, RewardConfirmation } from "src/api/types";
    const { data, fns } = useQ6RewardConfirmations();
    const rewardConfirmations: RewardConfirmation[] = data.rewardConfirmations;
    const rewardsMap: { [key: string]: Reward } = data.rewardsMap;
+   const confirmedRewardCardList = rewardConfirmations.map((rewardConfirmation: RewardConfirmation) => (
+      <QrCode1 data={data}>
+          {data.isRewardLoading || data.isRewardConfirmationsLoading ? (
+          <Skeleton
+              variant="rounded"
+              sx={{ width: "1588px", height: "477px" }}
+          />
+          ) : (
+          <CardContainer data={data}>
+              <Content data={data}>
+              <QrCode2 data={data}>
+                  <SizeBig className={props.className} props={props}>
+                  <img src={`data:image/png;base64,${rewardConfirmation.qrCode}`} alt="qrCode" />
+                  </SizeBig>
+              </QrCode2>
+              <Details data={data}>
+                  <Text>
+                  <TitleTop>
+                      <BrandImg>
+                      <img
+                          src={rewardsMap[rewardConfirmation.rewardId]?.logoUrl}
+                          alt={`${rewardsMap[rewardConfirmation.rewardId]?.name} logo`}
+                      />
+                      </BrandImg>
+                      <Title>{rewardsMap[rewardConfirmation.rewardId]?.name}</Title>
+                  </TitleTop>
+                  <Details1>
+                      <Value>
+                      <Points>{`Value:`}</Points>
+                      <Points1>{`$${rewardsMap[rewardConfirmation.rewardId]?.value}`}</Points1>
+                      </Value>
+                      <Details2>
+                      {`Use this QR Code at any Target store by scanning at checkout.`}
+                      </Details2>
+                      <BottomButton data={data}>
+                      <ButtonText
+                          variant="text"
+                          size={"large"}
+                          color={"primary"}
+                          disabled={false}
+                          onClick={fns.backToRewards}
+                          data={data}
+                      >
+                          {"BACK TO REWARDS"}
+                      </ButtonText>
+                      </BottomButton>
+                  </Details1>
+                  </Text>
+              </Details>
+              </Content>
+          </CardContainer>
+          )}
+      </QrCode1>
+  ));
+  const emptyRewardListMsgCard = data.isRewardLoading || data.isRewardConfirmationsLoading ? (
+      <Skeleton
+          variant="rounded"
+          sx={{ width: "1588px", height: "477px" }}
+      />
+    ) : (<EmptyConfirmedRewardsCardContainer data={data}>
+      <EmptyConfirmedRewardsContent data={data}>
+        <EmptyConfirmedRewardsDetails data={data}>
+          <Title>You do not have any confirmed rewards.</Title>
+        </EmptyConfirmedRewardsDetails>
+      </EmptyConfirmedRewardsContent>
+    </EmptyConfirmedRewardsCardContainer>);
  
    return (
      <ScreenDesktop className={props.className}>
@@ -338,60 +462,7 @@ import { Reward, RewardConfirmation } from "src/api/types";
          <title>Confirmed Rewards</title>
        </Helmet>
        <BannerTop1 />
-       {rewardConfirmations.map((rewardConfirmation: RewardConfirmation) => (
-            <QrCode1 data={data}>
-                {data.isRewardLoading || data.isRewardConfirmationsLoading ? (
-                <Skeleton
-                    variant="rounded"
-                    sx={{ width: "1588px", height: "477px" }}
-                />
-                ) : (
-                <CardContainer data={data}>
-                    <Content data={data}>
-                    <QrCode2 data={data}>
-                        <SizeBig className={props.className} props={props}>
-                        <img src={`data:image/png;base64,${rewardConfirmation.qrCode}`} alt="qrCode" />
-                        </SizeBig>
-                    </QrCode2>
-                    <Details data={data}>
-                        <Text>
-                        <TitleTop>
-                            <BrandImg>
-                            <img
-                                src={rewardsMap[rewardConfirmation.rewardId]?.logoUrl}
-                                alt={`${rewardsMap[rewardConfirmation.rewardId]?.name} logo`}
-                            />
-                            </BrandImg>
-                            <Title>{rewardsMap[rewardConfirmation.rewardId]?.name}</Title>
-                        </TitleTop>
-                        <Details1>
-                            <Value>
-                            <Points>{`Value:`}</Points>
-                            <Points1>{`$${rewardsMap[rewardConfirmation.rewardId]?.value}`}</Points1>
-                            </Value>
-                            <Details2>
-                            {`Use this QR Code at any Target store by scanning at checkout.`}
-                            </Details2>
-                            <BottomButton data={data}>
-                            <ButtonText
-                                variant="text"
-                                size={"large"}
-                                color={"primary"}
-                                disabled={false}
-                                onClick={fns.backToRewards}
-                                data={data}
-                            >
-                                {"BACK TO REWARDS"}
-                            </ButtonText>
-                            </BottomButton>
-                        </Details1>
-                        </Text>
-                    </Details>
-                    </Content>
-                </CardContainer>
-                )}
-            </QrCode1>
-        ))}
+       {rewardConfirmations.length > 0 ? (confirmedRewardCardList) : (emptyRewardListMsgCard)}
        <Footer11 />
      </ScreenDesktop>
    );
