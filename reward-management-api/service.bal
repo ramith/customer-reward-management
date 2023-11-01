@@ -169,8 +169,6 @@ service / on new http:Listener(9090) {
         log:printInfo("reward selected: ", selection = selection);
         string jwtHeader = check headers.getHeader("x-jwt-assertion");
         User user = check validateAndDecodeUserInfo(jwtHeader);
-
-        log:printInfo("user decoded: ", userId = user.userId);
         Reward reward = transform(user, selection);
 
         http:Response|http:Error response = vendorManagementClientEp->post("/rewards", reward);
@@ -197,21 +195,8 @@ service / on new http:Listener(9090) {
         return cardDetails;
     }
 
-    resource function get rewards(http:Request request, http:Headers headers) returns RewardOffer[]|error {
+    resource function get rewards(http:Request request) returns RewardOffer[]|error {
         log:printInfo("get all rewards available");
-        string jwtHeader = check headers.getHeader("x-jwt-assertion");
-        User user = check validateAndDecodeUserInfo(jwtHeader);
-
-        log:printInfo("user decoded: ", userId = user.userId);
-
-        string[] headerNames = request.getHeaderNames();
-
-        foreach string headerName in headerNames {
-            string headerValue = check request.getHeader(headerName);
-            log:printInfo("http header", headerName = headerName, headerValue = headerValue);
-
-        }
-
         RewardOffer[]|http:Error rewardsOffers = loyaltyAPIEndpoint->/rewards();
         if rewardsOffers is http:Error {
             log:printError("error retrieving rewards: ", 'error = rewardsOffers);
