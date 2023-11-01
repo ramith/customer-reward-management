@@ -22,3 +22,10 @@ export interface RewardConfirmation{
     rewardId: string;
     qrCode: string;
 }
+
+
+export interface RewardSelection {
+    userId: string;
+    selectedRewardDealId: string;
+    acceptedTnC: boolean;
+}

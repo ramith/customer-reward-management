@@ -16,7 +16,7 @@ import useQ4RewardPageResponsiveSize from "./useQ4RewardPageResponsiveSize";
 import { useParams, useNavigate } from "react-router-dom";
 import { CardDetails, Reward } from "src/api/types";
 import { useAuthContext } from "@asgardeo/auth-react";
-import { getCardDetails, getRewardDetails } from "src/api/api";
+import { getCardDetails, getRewardDetails, selectReward } from "src/api/api";
 
 /* These are the possible values for the current variant. Use this to change the currentVariant dynamically.
 Please don't modify */
@@ -39,6 +39,7 @@ const useQ4RewardPage = () => {
     null
   );
   const [isAgreementChecked, setIsAgreementChecked] = React.useState(false);
+  const [isRewardSelectionLoading, setIsRewardSelectionLoading] = React.useState(false);
 
   const { state } = useAuthContext();
 
@@ -88,6 +89,14 @@ const useQ4RewardPage = () => {
       });
   }
 
+  async function redeemReward(userId, selectedRewardDealId, acceptedTnC) {
+      setIsRewardSelectionLoading(true);
+      const response = await selectReward(userId, selectedRewardDealId, acceptedTnC);
+      console.log('Reward selection response:', response);
+      setIsRewardSelectionLoading(false);
+    
+  }
+
   useEffect(() => {
     if (state.isAuthenticated && state.sub) {
       getCardInfo(state.sub);
@@ -96,6 +105,7 @@ const useQ4RewardPage = () => {
   }, [state]);
 
   const handleRedeemClick = (param1) => {
+    redeemReward(state.sub, rewardId, true);
     navigate(`/qr-code/${param1}`);
   };
   const handleConfirmedRewardsClick = () => {
