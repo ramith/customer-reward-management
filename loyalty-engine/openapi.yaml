@@ -76,7 +76,93 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/User'
-
+          
+  /reward-confirmation:
+    get:
+      summary: Get reward confirmation.
+      parameters:
+      - name: userId
+        in: query
+        description: User ID
+        required: true
+        schema:
+          type: string
+      - name: rewardId
+        in: query
+        description: Reward ID
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Reward confirmation.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RewardConfirmation'
+        '500':
+          description: Internal server error.
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: "failed to fetch reward confirmation"
+  /reward-confirmations:
+    get:
+      summary: Get reward confirmations.
+      parameters:
+      - name: userId
+        in: query
+        description: User ID
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: A list of reward confirmations.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/RewardConfirmationWithQR'
+        '500':
+          description: Internal server error.
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: "failed to fetch reward confirmation"
+  /qr-code:
+    get:
+      summary: Get QR code.
+      parameters:
+      - name: userId
+        in: query
+        description: User ID
+        required: true
+        schema:
+          type: string
+      - name: rewardId
+        in: query
+        description: Reward ID
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: QR code.
+          content:
+            image/png:
+              schema:
+                type: object
+        '500':
+          description: Internal server error.
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: "failed to fetch QR code"
 components:
   schemas:
     User:
@@ -133,3 +219,28 @@ components:
         acceptedTnC:
           type: boolean
           description: Indicates if user accepted the Terms and Conditions.
+    RewardConfirmation:
+      type: object
+      properties:
+        userId:
+          type: string
+          description: Unique user identifier.
+        rewardId:
+          type: string
+          description: ID of the reward.
+        rewardConfirmationNumber:
+          type: string
+          description: Reward confirmation number.
+    RewardConfirmationWithQR:
+      type: object
+      properties:
+        userId:
+          type: string
+          description: Unique user identifier.
+        rewardId:
+          type: string
+          description: ID of the reward.
+        qrCode:
+          type: string
+          description: Encoded QR code.
+    

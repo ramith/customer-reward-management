@@ -67,11 +67,11 @@ components:
         UserId:
           type: string
           description: User ID making the selection
-          example: U0000
+          example: U451298
         SelectedRewardDealId:
           type: string
           description: ID of the selected reward deal
-          example: RWD0000
+          example: RWD34589
         AcceptedTnC:
           type: boolean
           description: Indicates if the user has accepted the terms and conditions

@@ -1,3 +1,21 @@
+/*
+ * Copyright (c) 2023, WSO2 LLC. (https://www.wso2.com/) All Rights Reserved.
+ *
+ * WSO2 LLC. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+
 package main
 
 import (
@@ -5,24 +23,25 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"net/http"
+	"os"
+
 	"github.com/gorilla/mux"
 	"go.uber.org/zap"
 	"golang.org/x/oauth2/clientcredentials"
-	"net/http"
-	"os"
 )
+
+type RewardSelection struct {
+	UserId               string `json:"userId"`
+	SelectedRewardDealId string `json:"selectedRewardDealId"`
+	AcceptedTnC          bool   `json:"acceptedTnC"`
+}
 
 type User struct {
 	UserId    string `json:"userId"`
 	FirstName string `json:"firstName"`
 	LastName  string `json:"lastName"`
 	Email     string `json:"email"`
-}
-
-type RewardSelection struct {
-	UserId               string `json:"userId"`
-	SelectedRewardDealId string `json:"selectedRewardDealId"`
-	AcceptedTnC          bool   `json:"acceptedTnC"`
 }
 
 type Reward struct {
@@ -45,6 +64,32 @@ var clientCredsConfig = clientcredentials.Config{
 	ClientID:     clientId,
 	ClientSecret: clientSecret,
 	TokenURL:     tokenUrl,
+}
+
+func init() {
+	var err error
+	logger, err = zap.NewProduction()
+	if err != nil {
+		panic(err)
+	}
+}
+
+func main() {
+
+	defer logger.Sync() // Ensure all buffered logs are written
+
+	logger.Info("starting the reward management api (golang)...")
+
+	r := mux.NewRouter()
+	r.HandleFunc("/select-reward", HandleRewardSelection).Methods("POST")
+
+	r.HandleFunc("/healthz", ReadinessProbe).Methods("GET") // Readiness probe
+	r.HandleFunc("/livez", LivenessProbe).Methods("GET")    // Liveness probe
+
+	err := http.ListenAndServe(":8080", r)
+	if err != nil {
+		return
+	}
 }
 
 func HandleRewardSelection(w http.ResponseWriter, r *http.Request) {
@@ -79,7 +124,6 @@ func HandleRewardSelection(w http.ResponseWriter, r *http.Request) {
 		LastName:  user.LastName,
 		Email:     user.Email,
 	})
-
 	if err != nil {
 		logger.Error("unable to send reward selection to vendor management api", zap.Error(err))
 		w.WriteHeader(http.StatusInternalServerError)
@@ -89,46 +133,6 @@ func HandleRewardSelection(w http.ResponseWriter, r *http.Request) {
 
 	w.WriteHeader(http.StatusAccepted)
 	w.Write([]byte("reward selection received successfully"))
-}
-
-func LivenessProbe(w http.ResponseWriter, r *http.Request) {
-	w.WriteHeader(http.StatusOK)
-	w.Write([]byte("Alive"))
-}
-
-func ReadinessProbe(w http.ResponseWriter, r *http.Request) {
-	// Add logic here to check database connections, external services, etc.
-	// If all checks pass:
-	w.WriteHeader(http.StatusOK)
-	w.Write([]byte("Ready"))
-	// If any check fails:
-	// w.WriteHeader(http.StatusInternalServerError)
-}
-
-func main() {
-
-	defer logger.Sync() // Ensure all buffered logs are written
-
-	logger.Info("starting the reward management api (golang)...")
-
-	r := mux.NewRouter()
-	r.HandleFunc("/select-reward", HandleRewardSelection).Methods("POST")
-
-	r.HandleFunc("/healthz", ReadinessProbe).Methods("GET") // Readiness probe
-	r.HandleFunc("/livez", LivenessProbe).Methods("GET")    // Liveness probe
-
-	err := http.ListenAndServe(":8080", r)
-	if err != nil {
-		return
-	}
-}
-
-func init() {
-	var err error
-	logger, err = zap.NewProduction()
-	if err != nil {
-		panic(err)
-	}
 }
 
 func FetchUserByIdFromLoyaltyApi(userId string) (*User, error) {
@@ -185,4 +189,18 @@ func PostRewardSelectionToVendorManagementApi(reward Reward) error {
 
 	logger.Info("Successfully sent reward selection user", zap.Any("reward", reward))
 	return nil
+}
+
+func LivenessProbe(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusOK)
+	w.Write([]byte("Alive"))
+}
+
+func ReadinessProbe(w http.ResponseWriter, r *http.Request) {
+	// Add logic here to check database connections, external services, etc.
+	// If all checks pass:
+	w.WriteHeader(http.StatusOK)
+	w.Write([]byte("Ready"))
+	// If any check fails:
+	// w.WriteHeader(http.StatusInternalServerError)
 }

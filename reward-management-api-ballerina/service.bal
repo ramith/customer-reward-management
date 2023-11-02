@@ -1,3 +1,20 @@
+// Copyright (c) 2023, WSO2 LLC. (https://www.wso2.com/) All Rights Reserved.
+//
+// WSO2 LLC. licenses this file to you under the Apache License,
+// Version 2.0 (the "License"); you may not use this file except
+// in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing,
+// software distributed under the License is distributed on an
+// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+// KIND, either express or implied. See the License for the
+// specific language governing permissions and limitations
+// under the License.
+//
+
 import ballerina/http;
 import ballerina/log;
 import ballerina/oauth2;
@@ -13,6 +30,12 @@ public type RewardSelection record {
     boolean acceptedTnC;
 };
 
+# Represents a user.
+#
+# + userId - id of the user
+# + firstName - first name of the user
+# + lastName - last name of the user
+# + email - email of the user
 public type User record {
     string userId;
     string firstName;
@@ -20,6 +43,13 @@ public type User record {
     string email;
 };
 
+# Represents a reward.
+#
+# + rewardId - id of the reward 
+# + userId - id of the user 
+# + firstName - first name of the user
+# + lastName - last name of the user 
+# + email - email of the user
 public type Reward record {
     string rewardId;
     string userId;
@@ -40,9 +70,9 @@ oauth2:ClientOAuth2Provider provider = new ({
     clientSecret: clientSecret
 });
 
-# The client to connect to the loyalty management api
+# The client to connect to the Loyalty Management API
 @display {
-    label: "loyalty management api",
+    label: "Loyalty Management API",
     id: "loyalty-management-api"
 }
 http:Client loyaltyAPIEndpoint = check new (loyaltyApiUrl, {
@@ -53,9 +83,9 @@ http:Client loyaltyAPIEndpoint = check new (loyaltyApiUrl, {
     }
 });
 
-# The client to connect to the vendor management api
+# The client to connect to the Vendor Management API
 @display {
-    label: "vendor management api",
+    label: "Vendor Management API",
     id: "vendor-management-api"
 }
 http:Client vendorManagementClientEp = check new (vendorManagementApiUrl, {
@@ -78,7 +108,7 @@ service / on new http:Listener(9090) {
         log:printInfo("reward selected: ", selection = selection);
 
         User|http:Error user = loyaltyAPIEndpoint->/user/[selection.userId];
-        if (user is http:Error) {
+        if user is http:Error {
             log:printError("error retrieving user: ", 'error = user);
             return user;
         }
@@ -87,7 +117,6 @@ service / on new http:Listener(9090) {
         Reward reward = transform(user, selection);
 
         http:Response|http:Error response = vendorManagementClientEp->post("/rewards", reward);
-
         if response is http:Error {
             log:printError("error while sending reward selection to vender ", 'error = response);
             return response;
@@ -95,16 +124,14 @@ service / on new http:Listener(9090) {
 
         log:printInfo("reward selection sent to vendor ", statusCode = response.statusCode);
         return "success";
-
     }
 
 }
 
 function transform(User user, RewardSelection rewardSelection) returns Reward => {
-
+    rewardId: rewardSelection.selectedRewardDealId,
+    userId: rewardSelection.userId,
     firstName: user.firstName,
     lastName: user.lastName,
-    userId: rewardSelection.userId,
-    rewardId: rewardSelection.selectedRewardDealId,
     email: user.email
 };
