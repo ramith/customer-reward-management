@@ -35,17 +35,28 @@ type Reward struct {
 
 var logger *zap.Logger
 
-var clientId = os.Getenv("CLIENT_ID")
-var clientSecret = os.Getenv("CLIENT_SECRET")
-var tokenUrl = os.Getenv("TOKEN_URL")
-var loyaltyApiUrl = os.Getenv("LOYALTY_API_URL")
+var vendorManagementClientId = os.Getenv("VENDOR_MANAGEMENT_CLIENT_ID")
+var vendorManagementClientSecret = os.Getenv("VENDOR_MANAGEMENT_CLIENT_SECRET")
+var vendorManagementTokenUrl = os.Getenv("VENDOR_MANAGEMENT_TOKEN_URL")
 var vendorManagementApiUrl = os.Getenv("VENDOR_MANAGEMENT_API_URL")
 
-var clientCredsConfig = clientcredentials.Config{
-	ClientID:     clientId,
-	ClientSecret: clientSecret,
-	TokenURL:     tokenUrl,
+var loyaltyClientId = os.Getenv("LOYALTY_CLIENT_ID")
+var loyaltyClientSecret = os.Getenv("LOYALTY_CLIENT_SECRET")
+var loyaltyTokenUrl = os.Getenv("LOYALTY_TOKEN_URL")
+var loyaltyApiUrl = os.Getenv("LOYALTY_API_URL")
+
+var vendorManagementClientCredsConfig = clientcredentials.Config{
+	ClientID:     vendorManagementClientId,
+	ClientSecret: vendorManagementClientSecret,
+	TokenURL:     vendorManagementTokenUrl,
 }
+
+var loyaltyManagementClientCredsConfig = clientcredentials.Config{
+	ClientID:     loyaltyClientId,
+	ClientSecret: loyaltyClientSecret,
+	TokenURL:     loyaltyTokenUrl,
+}
+
 
 func HandleRewardSelection(w http.ResponseWriter, r *http.Request) {
 	var selection RewardSelection
@@ -136,7 +147,7 @@ func FetchUserByIdFromLoyaltyApi(userId string) (*User, error) {
 	// Construct the full URL using the base URL from the environment variable
 	url := fmt.Sprintf("%s/user/%s", loyaltyApiUrl, userId)
 	// Make the HTTP GET request
-	resp, err := clientCredsConfig.Client(context.Background()).Get(url)
+	resp, err := loyaltyManagementClientCredsConfig.Client(context.Background()).Get(url)
 	if err != nil {
 		logger.Error("Failed to fetch user", zap.String("userId", userId), zap.Error(err))
 		return nil, fmt.Errorf("failed to fetch user: %v", err)
@@ -171,7 +182,7 @@ func PostRewardSelectionToVendorManagementApi(reward Reward) error {
 	// Construct the full URL using the base URL from the environment variable
 	url := fmt.Sprintf("%s/rewards", vendorManagementApiUrl)
 	// Make the HTTP POST request
-	resp, err := clientCredsConfig.Client(context.Background()).Post(url, "application/json", bytes.NewBuffer(payload))
+	resp, err := vendorManagementClientCredsConfig.Client(context.Background()).Post(url, "application/json", bytes.NewBuffer(payload))
 	if err != nil {
 		logger.Error("Failed to send reward to vendor management", zap.Any("reward", payload), zap.Error(err))
 		return fmt.Errorf("Failed to send reward to vendor management: %v", err)
