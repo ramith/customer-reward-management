@@ -34,7 +34,7 @@ spec:
   outbound:
     serviceReferences:
       - name: choreo:///ramith2023/qjxv/pgbwjs/5c69c/1.0.0/PUBLIC
-        connectionConfig: 01eeb685-138d-158e-b353-e55447f30590
+        connectionConfig: 01eec9e6-d0ee-1406-8456-7fb15cf29bce
         env:
         - from: ServiceURL
           to: VENDOR_MANAGEMENT_API_URL
@@ -46,7 +46,7 @@ spec:
           to: VENDOR_MANAGEMENT_TOKEN_URL
 
       - name: choreo:///ramith2023/choa/ezshqd/5c69c/1.0.0/PUBLIC
-        connectionConfig: 01eeb687-7a13-1766-bbba-726211f86283
+        connectionConfig: 01eec9e6-dea3-1c5e-83dd-088f3ccb6850
         env:
         - from: ServiceURL
           to: LOYALTY_API_URL
