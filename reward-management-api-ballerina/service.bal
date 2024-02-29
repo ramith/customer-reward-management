@@ -1,6 +1,5 @@
 import ballerina/http;
 import ballerina/log;
-import ballerina/oauth2;
 
 # Represents selected reward.
 #
@@ -28,17 +27,18 @@ public type Reward record {
     string email;
 };
 
-configurable string clientId = ?;
-configurable string clientSecret = ?;
-configurable string tokenUrl = ?;
-configurable string loyaltyApiUrl = ?;
-configurable string vendorManagementApiUrl = ?;
 
-oauth2:ClientOAuth2Provider provider = new ({
-    tokenUrl: tokenUrl,
-    clientId: clientId,
-    clientSecret: clientSecret
-});
+
+configurable string vendorManagementClientId = ?; 
+configurable string vendorManagementClientSecret = ?; 
+configurable string vendorManagementTokenUrl = ?; 
+configurable string vendorManagementApiUrl = ?; 
+
+configurable string loyaltyClientId = ?; 
+configurable string loyaltyClientSecret = ?;
+configurable string loyaltyTokenUrl = ?; 
+configurable string loyaltyApiUrl = ?;
+
 
 # The client to connect to the loyalty management api
 @display {
@@ -47,9 +47,9 @@ oauth2:ClientOAuth2Provider provider = new ({
 }
 http:Client loyaltyAPIEndpoint = check new (loyaltyApiUrl, {
     auth: {
-        tokenUrl: tokenUrl,
-        clientId: clientId,
-        clientSecret: clientSecret
+        tokenUrl: loyaltyTokenUrl,
+        clientId: loyaltyClientId,
+        clientSecret: loyaltyClientSecret
     }
 });
 
@@ -60,9 +60,9 @@ http:Client loyaltyAPIEndpoint = check new (loyaltyApiUrl, {
 }
 http:Client vendorManagementClientEp = check new (vendorManagementApiUrl, {
     auth: {
-        tokenUrl: tokenUrl,
-        clientId: clientId,
-        clientSecret: clientSecret
+        tokenUrl: vendorManagementTokenUrl,
+        clientId: vendorManagementClientId,
+        clientSecret: vendorManagementClientSecret
     }
 });
 
