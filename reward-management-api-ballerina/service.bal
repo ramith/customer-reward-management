@@ -1,5 +1,6 @@
 import ballerina/http;
 import ballerina/log;
+import ballerina/os;
 
 # Represents selected reward.
 #
@@ -29,15 +30,15 @@ public type Reward record {
 
 
 
-configurable string vendorManagementClientId = ?; 
-configurable string vendorManagementClientSecret = ?; 
-configurable string vendorManagementTokenUrl = ?; 
-configurable string vendorManagementApiUrl = ?; 
+configurable string vendorManagementClientId = os:getEnv("VENDOR_MANAGEMENT_CLIENT_ID"); 
+configurable string vendorManagementClientSecret = os:getEnv("VENDOR_MANAGEMENT_CLIENT_SECRET"); 
+configurable string vendorManagementTokenUrl = os:getEnv("VENDOR_MANAGEMENT_TOKEN_URL"); 
+configurable string vendorManagementApiUrl = os:getEnv("VENDOR_MANAGEMENT_API_URL"); 
 
-configurable string loyaltyClientId = ?; 
-configurable string loyaltyClientSecret = ?;
-configurable string loyaltyTokenUrl = ?; 
-configurable string loyaltyApiUrl = ?;
+configurable string loyaltyClientId = os:getEnv("LOYALTY_CLIENT_ID"); 
+configurable string loyaltyClientSecret = os:getEnv("LOYALTY_CLIENT_SECRET");
+configurable string loyaltyTokenUrl = os:getEnv("LOYALTY_TOKEN_URL"); 
+configurable string loyaltyApiUrl = os:getEnv("LOYALTY_API_URL");
 
 
 # The client to connect to the loyalty management api
