@@ -1,0 +1,58 @@
+apiVersion: core.choreo.dev/v1alpha1
+kind: ComponentConfig
+metadata:
+  # +required Name of the component that this configuration belongs to.
+  name: reward vendor
+  # +required Project name of the component that this component belongs to. Cannot be changed after creation.
+  projectName: chathuranga-int-marketplace
+  annotations:
+    componentType: Service
+spec:
+  # +optional Build instructions for the component.
+  build:
+    # +required Name of the branch. This is used to identify the corresponding deployment track.
+    branch: main
+  # +optional Incoming connection details for the component (AKA Endpoints).
+  inbound:
+    # +required Unique name for the endpoint. (This name will be used when generating the managed API)
+    - name: Reward Management API (Go Lang Implementation)
+      # +required Numeric port value that gets exposed via this endpoint
+      port: 8080
+      # +required Type of the traffic this endpoint is accepting. Example: REST, GraphQL, etc.
+      # Allowed values: REST, GraphQL, GRPC, TCP, UDP
+      type: REST
+      # +optional Network level visibility of this endpoint. Defaults to Project
+      # Accepted values: Project|Organization|Public.
+      visibility: Public
+      # +optional Context (base path) of the API that exposed via this endpoint.
+      # This is mandatory if the endpoint type is set to REST or GraphQL.
+      context: /
+      # +optional Path to the schema definition file. Defaults to wild card route if not provided
+      # This is only applicable to REST endpoint types.
+      # The path should be relative to the docker context.
+      schemaFilePath: openapi.yaml
+  outbound:
+    serviceReferences:
+      - name: choreo:///ramith2023/qjxv/pgbwjs/5c69c/1.0.0/PUBLIC
+        connectionConfig: 01eec9ee-3560-1cde-99a0-a47db3378cd6
+        env:
+        - from: ServiceURL
+          to: VENDOR_MANAGEMENT_API_URL
+        - from: ConsumerKey
+          to: VENDOR_MANAGEMENT_CLIENT_ID
+        - from: ConsumerSecret
+          to: VENDOR_MANAGEMENT_CLIENT_SECRET
+        - from: TokenURL
+          to: VENDOR_MANAGEMENT_TOKEN_URL
+
+      - name: choreo:///ramith2023/choa/ezshqd/5c69c/1.0.0/PUBLIC
+        connectionConfig: 01eec9ee-00ed-111e-814e-95558b7dfd9e
+        env:
+        - from: ServiceURL
+          to: LOYALTY_API_URL
+        - from: ConsumerKey
+          to: LOYALTY_CLIENT_ID
+        - from: ConsumerSecret
+          to: LOYALTY_CLIENT_SECRET
+        - from: TokenURL
+          to: LOYALTY_TOKEN_URL

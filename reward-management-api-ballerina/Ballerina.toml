@@ -2,7 +2,7 @@
 org = "ramith"
 name = "reward_management_api_ballerina"
 version = "0.1.0"
-distribution = "2201.7.2"
+distribution = "2201.8.5"
 
 [build-options]
 observabilityIncluded = true
