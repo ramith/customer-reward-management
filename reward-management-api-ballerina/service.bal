@@ -30,15 +30,15 @@ public type Reward record {
 
 
 
-configurable string vendorManagementClientId = os:getEnv("VENDOR_MANAGEMENT_CLIENT_ID"); 
-configurable string vendorManagementClientSecret = os:getEnv("VENDOR_MANAGEMENT_CLIENT_SECRET"); 
-configurable string vendorManagementTokenUrl = os:getEnv("VENDOR_MANAGEMENT_TOKEN_URL"); 
-configurable string vendorManagementApiUrl = os:getEnv("VENDOR_MANAGEMENT_API_URL"); 
+string vendorManagementClientId = os:getEnv("VENDOR_MANAGEMENT_CLIENT_ID"); 
+string vendorManagementClientSecret = os:getEnv("VENDOR_MANAGEMENT_CLIENT_SECRET"); 
+string vendorManagementTokenUrl = os:getEnv("VENDOR_MANAGEMENT_TOKEN_URL"); 
+string vendorManagementApiUrl = os:getEnv("VENDOR_MANAGEMENT_API_URL"); 
 
-configurable string loyaltyClientId = os:getEnv("LOYALTY_CLIENT_ID"); 
-configurable string loyaltyClientSecret = os:getEnv("LOYALTY_CLIENT_SECRET");
-configurable string loyaltyTokenUrl = os:getEnv("LOYALTY_TOKEN_URL"); 
-configurable string loyaltyApiUrl = os:getEnv("LOYALTY_API_URL");
+string loyaltyClientId = os:getEnv("LOYALTY_CLIENT_ID"); 
+string loyaltyClientSecret = os:getEnv("LOYALTY_CLIENT_SECRET");
+string loyaltyTokenUrl = os:getEnv("LOYALTY_TOKEN_URL"); 
+string loyaltyApiUrl = os:getEnv("LOYALTY_API_URL");
 
 
 # The client to connect to the loyalty management api
